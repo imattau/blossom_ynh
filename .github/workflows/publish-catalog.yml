@@ -1,0 +1,27 @@
+name: Publish package to Nostr catalogue
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish signed app declaration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out package
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Publish to the custom catalogue relays
+        uses: imattau/nostr-yunohost@main
+        with:
+          relays: wss://relay.damus.io,wss://nos.lol
+          private-key: ${{ secrets.NOSTR_YNH_PUBLISHING_KEY }}
+          nostr-yunohost-version: main
