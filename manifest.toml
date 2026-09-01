@@ -3,7 +3,7 @@ packaging_format = 2
 id = "blossom"
 name = "Blossom Server"
 description.en = "Self-hosted content-addressed blob storage server implementing the Blossom protocol for Nostr"
-version = "0.1.4~ynh1"
+version = "0.1.5~ynh1"
 maintainers = ["imattau"]
 
 [upstream]
@@ -34,7 +34,7 @@ ram.runtime = "256M"
 
     [install.enable_dashboard]
     type = "boolean"
-    default = false
+    default = 0
     ask.en = "Enable the admin dashboard?"
     help.en = "Enable the /admin dashboard. Leave its password blank to generate one at first start."
 
