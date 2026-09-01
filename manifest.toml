@@ -3,7 +3,7 @@ packaging_format = 2
 id = "blossom"
 name = "Blossom Server"
 description.en = "Self-hosted content-addressed blob storage server implementing the Blossom protocol for Nostr"
-version = "0.1~ynh1"
+version = "0.1.1~ynh1"
 maintainers = ["imattau"]
 
 [upstream]
@@ -46,36 +46,36 @@ ram.runtime = "256M"
 
     [install.max_upload_size]
     type = "select"
-    choices."104857600" = "100 MiB"
-    choices."536870912" = "500 MiB"
-    choices."1073741824" = "1 GiB"
-    choices."2147483648" = "2 GiB"
-    choices."5368709120" = "5 GiB"
-    default = "2147483648"
+    choices = ["100 MiB", "500 MiB", "1 GiB", "2 GiB", "5 GiB"]
+    default = "2 GiB"
     ask.en = "Maximum upload size"
     help.en = "Choose a preset: 100 MiB, 500 MiB, 1 GiB, 2 GiB, or 5 GiB."
 
     [install.s3_endpoint]
     type = "string"
     optional = true
+    default = ""
     visible = "storage_backend == 's3'"
     ask.en = "S3 endpoint"
 
     [install.s3_bucket]
     type = "string"
     optional = true
+    default = ""
     visible = "storage_backend == 's3'"
     ask.en = "S3 bucket"
 
     [install.s3_access_key]
     type = "string"
     optional = true
+    default = ""
     visible = "storage_backend == 's3'"
     ask.en = "S3 access key"
 
     [install.s3_secret_key]
     type = "password"
     optional = true
+    default = ""
     visible = "storage_backend == 's3'"
     ask.en = "S3 secret key"
 

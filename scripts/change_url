@@ -5,6 +5,8 @@ source /usr/share/yunohost/helpers
 
 ynh_script_progression "Updating Blossom public URL"
 max_upload_size="${max_upload_size:-2147483648}"
+max_upload_size="$(ynh_upload_size_to_bytes "$max_upload_size")"
 max_upload_size_mb=$(( (max_upload_size + 1048575) / 1048576 ))
+MAX_UPLOAD_SIZE_MB="$max_upload_size_mb"
 ynh_config_change_url_nginx
 ynh_systemctl --service="$app" --action=restart

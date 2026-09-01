@@ -9,7 +9,10 @@ ynh_setup_source --source_id=main --dest_dir="$install_dir"
 ynh_setup_source --source_id=deno --dest_dir="$install_dir/.deno"
 
 public_domain="$domain"
+max_upload_size="$(ynh_upload_size_to_bytes "$max_upload_size")"
 max_upload_size_mb=$(( (max_upload_size + 1048575) / 1048576 ))
+MAX_UPLOAD_SIZE="$max_upload_size"
+MAX_UPLOAD_SIZE_MB="$max_upload_size_mb"
 dashboard_enabled=false
 if [ "${enable_dashboard:-0}" -eq 1 ]; then dashboard_enabled=true; fi
 

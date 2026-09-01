@@ -14,13 +14,9 @@ version = "1.0"
         bind = "storage>backend:__INSTALL_DIR__/config.yml"
 
         [main.server.max_upload_size]
-        ask.en = "Maximum upload size (bytes)"
+        ask.en = "Maximum upload size"
         type = "select"
-        choices."104857600" = "100 MiB"
-        choices."536870912" = "500 MiB"
-        choices."1073741824" = "1 GiB"
-        choices."2147483648" = "2 GiB"
-        choices."5368709120" = "5 GiB"
+        choices = ["100 MiB", "500 MiB", "1 GiB", "2 GiB", "5 GiB"]
         bind = "upload>maxSize:__INSTALL_DIR__/config.yml"
 
     [main.s3]
