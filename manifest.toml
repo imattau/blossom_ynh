@@ -8,7 +8,6 @@ maintainers = ["imattau"]
 
 [upstream]
 license = "MIT"
-website = "https://github.com/hzrd149/blossom-server"
 code = "https://github.com/hzrd149/blossom-server"
 
 [integration]
@@ -40,16 +39,19 @@ ram.runtime = "256M"
     [install.enable_dashboard]
     type = "boolean"
     default = false
+    ask.en = "Enable the admin dashboard?"
     help.en = "Enable the /admin dashboard. Leave its password blank to generate one at first start."
 
     [install.storage_backend]
     type = "select"
     choices = ["local", "s3"]
     default = "local"
+    ask.en = "Storage backend"
 
     [install.max_upload_size]
     type = "number"
     default = 2147483648
+    ask.en = "Maximum upload size in bytes"
     help.en = "Maximum upload size in bytes (default: 2 GiB)."
 
     [install.s3_endpoint]

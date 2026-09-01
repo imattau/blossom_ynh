@@ -3,7 +3,6 @@
 source "$(dirname "$0")/_common.sh"
 source /usr/share/yunohost/helpers
 
-ynh_abort_if_errors
 ynh_script_progression "Installing Blossom Server"
 
 ynh_setup_source --source_id=main --dest_dir="$install_dir"

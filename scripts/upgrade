@@ -3,7 +3,6 @@
 source "$(dirname "$0")/_common.sh"
 source /usr/share/yunohost/helpers
 
-ynh_abort_if_errors
 ynh_script_progression "Stopping Blossom Server"
 ynh_systemctl --service="$app" --action=stop || true
 
@@ -27,6 +26,7 @@ ynh_exec_and_print_stderr_only_if_error "$install_dir/.deno/deno" task build
 popd >/dev/null
 
 chown -R "$app:$app" "$install_dir" "$data_dir"
+yunohost service add "$app" --description="Blossom blob storage server" --log="/var/log/$app/$app.log"
 ynh_config_add_systemd --service="$app" --template="systemd.service"
 ynh_config_add_nginx
 ynh_systemctl --service="$app" --action=start --log_path=systemd --wait_until="Listening"
