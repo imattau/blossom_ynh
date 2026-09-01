@@ -3,9 +3,10 @@
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
-ynh_restore "$install_dir/config.yml"
+ynh_restore "$install_dir"
 ynh_restore "$data_dir"
 ynh_restore "/etc/nginx/conf.d/$domain.d/$app.conf"
 chown -R "$app:$app" "$install_dir" "$data_dir"
+yunohost service add "$app" --description="Blossom blob storage server" --log="/var/log/$app/$app.log"
 ynh_config_add_systemd --service="$app" --template="systemd.service"
 ynh_systemctl --service="$app" --action=start --log_path=systemd --wait_until="Listening"
