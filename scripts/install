@@ -9,6 +9,8 @@ ynh_script_progression "Installing Blossom Server"
 ynh_setup_source --source_id=main --dest_dir="$install_dir"
 ynh_setup_source --source_id=deno --dest_dir="$install_dir/.deno"
 
+max_upload_size_mb=$(( (max_upload_size + 1048575) / 1048576 ))
+
 # GitHub archives contain a single top-level directory.
 source_root="$(find "$install_dir" -mindepth 1 -maxdepth 1 -type d -name 'blossom-server-*' -print -quit)"
 if [ -n "$source_root" ]; then
@@ -33,11 +35,11 @@ ynh_script_progression "Building the landing page client bundle"
 export DENO_DIR="$install_dir/.deno-cache"
 export PATH="$install_dir/.deno:$PATH"
 pushd "$install_dir" >/dev/null
-ynh_exec_and_print_stderr_only_if_error "$install_dir/.deno/deno task build"
+ynh_exec_and_print_stderr_only_if_error "$install_dir/.deno/deno" task build
 popd >/dev/null
 
 ynh_script_progression "Writing Blossom configuration"
-ynh_add_config --template="config.yml.j2" --destination="$install_dir/config.yml"
+ynh_config_add --template="config.yml.j2" --destination="$install_dir/config.yml"
 chmod 0640 "$install_dir/config.yml"
 
 chown -R "$app:$app" "$install_dir" "$data_dir"
@@ -45,8 +47,8 @@ chmod 0750 "$install_dir"
 
 ynh_script_progression "Configuring systemd and NGINX"
 yunohost service add "$app" --description="Blossom blob storage server" --log="/var/log/$app/$app.log"
-ynh_add_systemd_config --service="$app" --template="systemd.service"
-ynh_add_nginx_config
+ynh_config_add_systemd --service="$app" --template="systemd.service"
+ynh_config_add_nginx
 
 ynh_script_progression "Starting Blossom Server"
-ynh_systemd_action --service_name="$app" --action=start --log_path=systemd --line_match="Listening"
+ynh_systemctl --service="$app" --action=start --log_path=systemd --wait_until="Listening"

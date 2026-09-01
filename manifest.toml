@@ -13,6 +13,7 @@ code = "https://github.com/hzrd149/blossom-server"
 
 [integration]
 yunohost = ">= 11.2"
+helpers_version = "2.1"
 architectures = ["amd64", "arm64"]
 multi_instance = true
 ldap = false

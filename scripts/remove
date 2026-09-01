@@ -4,9 +4,9 @@ source "$(dirname "$0")/_common.sh"
 source /usr/share/yunohost/helpers
 
 ynh_script_progression "Removing Blossom Server"
-ynh_systemd_action --service_name="$app" --action=stop || true
+ynh_systemctl --service="$app" --action=stop || true
 yunohost service remove "$app" || true
-ynh_remove_systemd_config
-ynh_remove_nginx_config
-ynh_secure_remove --file="$install_dir"
-ynh_secure_remove --file="$data_dir"
+ynh_config_remove_systemd "$app"
+ynh_config_remove_nginx
+ynh_safe_rm "$install_dir"
+ynh_safe_rm "$data_dir"
