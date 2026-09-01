@@ -3,7 +3,7 @@ packaging_format = 2
 id = "blossom"
 name = "Blossom Server"
 description.en = "Self-hosted content-addressed blob storage server implementing the Blossom protocol for Nostr"
-version = "0.1.1~ynh1"
+version = "0.1.2~ynh1"
 maintainers = ["imattau"]
 
 [upstream]
@@ -53,35 +53,30 @@ ram.runtime = "256M"
 
     [install.s3_endpoint]
     type = "string"
-    optional = true
     default = ""
     visible = "storage_backend == 's3'"
     ask.en = "S3 endpoint"
 
     [install.s3_bucket]
     type = "string"
-    optional = true
     default = ""
     visible = "storage_backend == 's3'"
     ask.en = "S3 bucket"
 
     [install.s3_access_key]
     type = "string"
-    optional = true
     default = ""
     visible = "storage_backend == 's3'"
     ask.en = "S3 access key"
 
     [install.s3_secret_key]
     type = "password"
-    optional = true
     default = ""
     visible = "storage_backend == 's3'"
     ask.en = "S3 secret key"
 
     [install.s3_region]
     type = "string"
-    optional = true
     visible = "storage_backend == 's3'"
     default = "us-east-1"
     ask.en = "S3 region"
