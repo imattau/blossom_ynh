@@ -32,10 +32,6 @@ ram.runtime = "256M"
     [install.admin]
     type = "user"
 
-    [install.public_domain]
-    type = "string"
-    ask.en = "Bare hostname used in public blob URLs (without https://)"
-
     [install.enable_dashboard]
     type = "boolean"
     default = false
@@ -49,10 +45,11 @@ ram.runtime = "256M"
     ask.en = "Storage backend"
 
     [install.max_upload_size]
-    type = "number"
-    default = 2147483648
-    ask.en = "Maximum upload size in bytes"
-    help.en = "Maximum upload size in bytes (default: 2 GiB)."
+    type = "select"
+    choices = ["104857600", "536870912", "1073741824", "2147483648", "5368709120"]
+    default = "2147483648"
+    ask.en = "Maximum upload size"
+    help.en = "Choose a preset: 100 MiB, 500 MiB, 1 GiB, 2 GiB, or 5 GiB."
 
     [install.s3_endpoint]
     type = "string"

@@ -8,6 +8,10 @@ publishes it through YunoHost's NGINX reverse proxy. Local filesystem storage
 and authenticated uploads/deletes are enabled by default; listing and the
 admin dashboard are disabled by default.
 
+The initial public hostname is derived from the selected YunoHost domain. It
+can be overridden later in the application configuration panel. Upload limits
+use presets from 100 MiB to 5 GiB and can also be changed after installation.
+
 The full install directory and application data under `data_dir` are included
 in backups. `data_dir` is preserved when the app is removed; a YunoHost purge
 is required to remove that data.

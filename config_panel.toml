@@ -15,7 +15,8 @@ version = "1.0"
 
         [main.server.max_upload_size]
         ask.en = "Maximum upload size (bytes)"
-        type = "number"
+        type = "select"
+        choices = ["104857600", "536870912", "1073741824", "2147483648", "5368709120"]
         bind = "upload>maxSize:__INSTALL_DIR__/config.yml"
 
     [main.s3]
