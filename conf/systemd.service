@@ -1,0 +1,20 @@
+[Unit]
+Description=Blossom Server — content-addressed blob storage for Nostr
+After=network.target
+
+[Service]
+Type=simple
+User=__APP__
+Group=__APP__
+WorkingDirectory=__INSTALL_DIR__
+Environment=DENO_DIR=__INSTALL_DIR__/.deno-cache
+ExecStart=__INSTALL_DIR__/.deno/deno task start __INSTALL_DIR__/config.yml
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=__DATA_DIR__ __INSTALL_DIR__/.deno-cache
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

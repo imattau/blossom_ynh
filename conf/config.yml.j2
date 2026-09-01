@@ -1,0 +1,47 @@
+port: __PORT__
+host: 127.0.0.1
+publicDomain: "__PUBLIC_DOMAIN__"
+
+database:
+  path: "__DATA_DIR__/sqlite.db"
+
+storage:
+  backend: __STORAGE_BACKEND__
+  local:
+    dir: "__DATA_DIR__/blobs"
+
+upload:
+  enabled: true
+  requireAuth: true
+  maxSize: __MAX_UPLOAD_SIZE__
+  workers: 0
+
+mirror:
+  enabled: true
+  requireAuth: true
+
+delete:
+  requireAuth: true
+
+list:
+  enabled: false
+
+media:
+  enabled: false
+  requireAuth: true
+  tmpDir: "__DATA_DIR__/media-tmp"
+
+report:
+  enabled: true
+
+landing:
+  enabled: true
+  title: "__APP__"
+
+dashboard:
+  enabled: __ENABLE_DASHBOARD__
+  username: "__ADMIN__"
+  password: ""
+  lookupRelays:
+    - wss://purplepag.es
+    - wss://relay.nostr.band

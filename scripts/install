@@ -1,0 +1,52 @@
+#!/bin/bash
+
+source "$(dirname "$0")/_common.sh"
+source /usr/share/yunohost/helpers
+
+ynh_abort_if_errors
+ynh_script_progression "Installing Blossom Server"
+
+ynh_setup_source --source_id=main --dest_dir="$install_dir"
+ynh_setup_source --source_id=deno --dest_dir="$install_dir/.deno"
+
+# GitHub archives contain a single top-level directory.
+source_root="$(find "$install_dir" -mindepth 1 -maxdepth 1 -type d -name 'blossom-server-*' -print -quit)"
+if [ -n "$source_root" ]; then
+	shopt -s dotglob
+	mv "$source_root"/* "$install_dir"/
+	rmdir "$source_root"
+	shopt -u dotglob
+fi
+
+if [ ! -x "$install_dir/.deno/deno" ]; then
+	if [ -x "$install_dir/deno" ]; then
+		mv "$install_dir/deno" "$install_dir/.deno/deno"
+	else
+		ynh_die "The Deno source did not contain a deno binary"
+	fi
+fi
+chmod 0750 "$install_dir/.deno/deno"
+
+mkdir -p "$data_dir/blobs" "$data_dir/media-tmp"
+
+ynh_script_progression "Building the landing page client bundle"
+export DENO_DIR="$install_dir/.deno-cache"
+export PATH="$install_dir/.deno:$PATH"
+pushd "$install_dir" >/dev/null
+ynh_exec_and_print_stderr_only_if_error "$install_dir/.deno/deno task build"
+popd >/dev/null
+
+ynh_script_progression "Writing Blossom configuration"
+ynh_add_config --template="config.yml.j2" --destination="$install_dir/config.yml"
+chmod 0640 "$install_dir/config.yml"
+
+chown -R "$app:$app" "$install_dir" "$data_dir"
+chmod 0750 "$install_dir"
+
+ynh_script_progression "Configuring systemd and NGINX"
+yunohost service add "$app" --description="Blossom blob storage server" --log="/var/log/$app/$app.log"
+ynh_add_systemd_config --service="$app" --template="systemd.service"
+ynh_add_nginx_config
+
+ynh_script_progression "Starting Blossom Server"
+ynh_systemd_action --service_name="$app" --action=start --log_path=systemd --line_match="Listening"

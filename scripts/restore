@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source ../settings/scripts/_common.sh
+source /usr/share/yunohost/helpers
+
+ynh_restore "$install_dir/config.yml"
+ynh_restore "$data_dir"
+ynh_restore "/etc/nginx/conf.d/$domain.d/$app.conf"
+chown -R "$app:$app" "$install_dir" "$data_dir"
+ynh_add_systemd_config --service="$app" --template="systemd.service"
+ynh_systemd_action --service_name="$app" --action=start --log_path=systemd --line_match="Listening"

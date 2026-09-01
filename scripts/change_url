@@ -1,0 +1,9 @@
+#!/bin/bash
+
+source "$(dirname "$0")/_common.sh"
+source /usr/share/yunohost/helpers
+
+ynh_script_progression "Updating Blossom public URL"
+ynh_add_config --template="config.yml.j2" --destination="$install_dir/config.yml"
+ynh_add_nginx_config
+ynh_systemd_action --service_name="$app" --action=restart

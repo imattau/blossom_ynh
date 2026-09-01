@@ -1,0 +1,82 @@
+packaging_format = 2
+
+id = "blossom"
+name = "Blossom Server"
+description.en = "Self-hosted content-addressed blob storage server implementing the Blossom protocol for Nostr"
+version = "0.1~ynh1"
+maintainers = ["imattau"]
+
+[upstream]
+license = "MIT"
+website = "https://github.com/hzrd149/blossom-server"
+code = "https://github.com/hzrd149/blossom-server"
+
+[integration]
+yunohost = ">= 11.2"
+architectures = ["amd64", "arm64"]
+multi_instance = true
+ldap = false
+sso = false
+disk = "1G"
+ram.build = "512M"
+ram.runtime = "256M"
+
+[install]
+    [install.domain]
+    type = "domain"
+
+    [install.path]
+    type = "path"
+    default = "/"
+
+    [install.admin]
+    type = "user"
+
+    [install.public_domain]
+    type = "string"
+    ask.en = "Bare hostname used in public blob URLs (without https://)"
+
+    [install.enable_dashboard]
+    type = "boolean"
+    default = false
+    help.en = "Enable the /admin dashboard. Leave its password blank to generate one at first start."
+
+    [install.storage_backend]
+    type = "select"
+    choices = ["local", "s3"]
+    default = "local"
+
+    [install.max_upload_size]
+    type = "number"
+    default = 2147483648
+    help.en = "Maximum upload size in bytes (default: 2 GiB)."
+
+[resources]
+    [resources.sources.main]
+        url = "https://github.com/hzrd149/blossom-server/archive/refs/tags/v6.1.5.tar.gz"
+        sha256 = "0a958cecf432951b6df7a25484fbd30970d748564173a7745a71483fbd6f43e5"
+        format = "tar.gz"
+        extract = true
+
+    [resources.sources.deno]
+        url = "https://github.com/denoland/deno/releases/download/v2.1.4/deno-x86_64-unknown-linux-gnu.zip"
+        sha256 = "54a81939cccb2af114c4d0a68a554cf4a04b1f08728e70f663f83781de19d785"
+        format = "zip"
+        extract = true
+
+        [resources.sources.deno.arm64]
+        url = "https://github.com/denoland/deno/releases/download/v2.1.4/deno-aarch64-unknown-linux-gnu.zip"
+        sha256 = "93ad8efe6f60da8566652dfd39cf2a23cb0e35d8c6d6faac7392a917d2b50039"
+
+    [resources.system_user]
+
+    [resources.install_dir]
+
+    [resources.data_dir]
+
+    [resources.ports]
+        [resources.ports.main]
+        default = 3000
+
+    [resources.apt]
+        packages = "ffmpeg"
