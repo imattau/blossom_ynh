@@ -52,6 +52,37 @@ ram.runtime = "256M"
     default = 2147483648
     help.en = "Maximum upload size in bytes (default: 2 GiB)."
 
+    [install.s3_endpoint]
+    type = "string"
+    optional = true
+    visible = "storage_backend == 's3'"
+    ask.en = "S3 endpoint"
+
+    [install.s3_bucket]
+    type = "string"
+    optional = true
+    visible = "storage_backend == 's3'"
+    ask.en = "S3 bucket"
+
+    [install.s3_access_key]
+    type = "string"
+    optional = true
+    visible = "storage_backend == 's3'"
+    ask.en = "S3 access key"
+
+    [install.s3_secret_key]
+    type = "password"
+    optional = true
+    visible = "storage_backend == 's3'"
+    ask.en = "S3 secret key"
+
+    [install.s3_region]
+    type = "string"
+    optional = true
+    visible = "storage_backend == 's3'"
+    default = "us-east-1"
+    ask.en = "S3 region"
+
 [resources]
     [resources.sources.main]
         url = "https://github.com/hzrd149/blossom-server/archive/refs/tags/v6.1.5.tar.gz"

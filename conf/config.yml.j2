@@ -6,9 +6,18 @@ database:
   path: "__DATA_DIR__/sqlite.db"
 
 storage:
-  backend: __STORAGE_BACKEND__
+  backend: {{ storage_backend }}
   local:
     dir: "__DATA_DIR__/blobs"
+{% if storage_backend == 's3' %}
+  s3:
+    endpoint: "{{ s3_endpoint }}"
+    bucket: "{{ s3_bucket }}"
+    accessKey: "{{ s3_access_key }}"
+    secretKey: "{{ s3_secret_key }}"
+    region: "{{ s3_region }}"
+    tmpDir: "__DATA_DIR__/s3-tmp"
+{% endif %}
 
 upload:
   enabled: true
@@ -39,7 +48,7 @@ landing:
   title: "__APP__"
 
 dashboard:
-  enabled: __ENABLE_DASHBOARD__
+  enabled: {{ dashboard_enabled }}
   username: "__ADMIN__"
   password: ""
   lookupRelays:

@@ -1,0 +1,67 @@
+version = "1.0"
+
+[main]
+    [main.server]
+        [main.server.public_domain]
+        ask.en = "Public hostname"
+        type = "string"
+        bind = "publicDomain:__INSTALL_DIR__/config.yml"
+
+        [main.server.storage_backend]
+        ask.en = "Storage backend"
+        type = "select"
+        choices = ["local", "s3"]
+        bind = "storage>backend:__INSTALL_DIR__/config.yml"
+
+        [main.server.max_upload_size]
+        ask.en = "Maximum upload size (bytes)"
+        type = "number"
+        bind = "upload>maxSize:__INSTALL_DIR__/config.yml"
+
+    [main.s3]
+        visible = "storage_backend == 's3'"
+        [main.s3.endpoint]
+        ask.en = "S3 endpoint"
+        type = "string"
+        bind = "storage>s3>endpoint:__INSTALL_DIR__/config.yml"
+
+        [main.s3.bucket]
+        ask.en = "S3 bucket"
+        type = "string"
+        bind = "storage>s3>bucket:__INSTALL_DIR__/config.yml"
+
+        [main.s3.access_key]
+        ask.en = "S3 access key"
+        type = "string"
+        bind = "storage>s3>accessKey:__INSTALL_DIR__/config.yml"
+
+        [main.s3.secret_key]
+        ask.en = "S3 secret key"
+        type = "password"
+        bind = "storage>s3>secretKey:__INSTALL_DIR__/config.yml"
+
+        [main.s3.region]
+        ask.en = "S3 region"
+        type = "string"
+        bind = "storage>s3>region:__INSTALL_DIR__/config.yml"
+
+    [main.features]
+        [main.features.enable_dashboard]
+        ask.en = "Enable admin dashboard"
+        type = "boolean"
+        bind = "dashboard>enabled:__INSTALL_DIR__/config.yml"
+
+        [main.features.enable_listing]
+        ask.en = "Enable blob listing"
+        type = "boolean"
+        bind = "list>enabled:__INSTALL_DIR__/config.yml"
+
+        [main.features.enable_media]
+        ask.en = "Enable media optimization"
+        type = "boolean"
+        bind = "media>enabled:__INSTALL_DIR__/config.yml"
+
+        [main.features.enable_mirror]
+        ask.en = "Enable remote mirroring"
+        type = "boolean"
+        bind = "mirror>enabled:__INSTALL_DIR__/config.yml"

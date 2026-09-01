@@ -10,6 +10,13 @@ ynh_setup_source --source_id=main --dest_dir="$install_dir"
 ynh_setup_source --source_id=deno --dest_dir="$install_dir/.deno"
 
 max_upload_size_mb=$(( (max_upload_size + 1048575) / 1048576 ))
+dashboard_enabled=false
+if [ "${enable_dashboard:-0}" -eq 1 ]; then dashboard_enabled=true; fi
+
+if [ "$storage_backend" = "s3" ] && { [ -z "${s3_endpoint:-}" ] || [ -z "${s3_bucket:-}" ] || [ -z "${s3_access_key:-}" ] || [ -z "${s3_secret_key:-}" ]; }; then
+	ynh_die "S3 storage requires endpoint, bucket, access key, and secret key"
+fi
+s3_region="${s3_region:-us-east-1}"
 
 # GitHub archives contain a single top-level directory.
 source_root="$(find "$install_dir" -mindepth 1 -maxdepth 1 -type d -name 'blossom-server-*' -print -quit)"
@@ -39,7 +46,7 @@ ynh_exec_and_print_stderr_only_if_error "$install_dir/.deno/deno" task build
 popd >/dev/null
 
 ynh_script_progression "Writing Blossom configuration"
-ynh_config_add --template="config.yml.j2" --destination="$install_dir/config.yml"
+ynh_config_add --jinja --template="config.yml.j2" --destination="$install_dir/config.yml"
 chmod 0640 "$install_dir/config.yml"
 
 chown -R "$app:$app" "$install_dir" "$data_dir"
