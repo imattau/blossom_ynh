@@ -46,6 +46,9 @@ export DENO_DIR="$install_dir/.deno-cache"
 export PATH="$install_dir/.deno:$PATH"
 pushd "$install_dir" >/dev/null
 ynh_exec_and_print_stderr_only_if_error "$install_dir/.deno/deno" task build
+
+ynh_script_progression "Caching server dependencies"
+ynh_exec_and_print_stderr_only_if_error "$install_dir/.deno/deno" cache main.ts
 popd >/dev/null
 
 ynh_script_progression "Writing Blossom configuration"
@@ -61,4 +64,4 @@ ynh_config_add_systemd --service="$app" --template="systemd.service"
 ynh_config_add_nginx
 
 ynh_script_progression "Starting Blossom Server"
-ynh_systemctl --service="$app" --action=start --log_path=systemd --wait_until="Listening"
+ynh_systemctl --service="$app" --action=start --log_path=systemd --wait_until="Blossom Server listening"

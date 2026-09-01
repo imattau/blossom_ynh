@@ -12,7 +12,7 @@ ynh_app_config_apply() {
 	MAX_UPLOAD_SIZE_MB="$max_upload_size_mb"
 	sed -i -E "s/^  maxSize:.*/  maxSize: $max_upload_size/" "$install_dir/config.yml"
 	ynh_config_add_nginx
-	ynh_systemctl --service="$app" --action=start --log_path=systemd --wait_until="Listening"
+	ynh_systemctl --service="$app" --action=start --log_path=systemd --wait_until="Blossom Server listening"
 }
 
 ynh_app_config_run "$1"

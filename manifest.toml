@@ -89,14 +89,14 @@ ram.runtime = "256M"
         extract = true
 
     [resources.sources.deno]
-        url = "https://github.com/denoland/deno/releases/download/v2.1.4/deno-x86_64-unknown-linux-gnu.zip"
-        sha256 = "54a81939cccb2af114c4d0a68a554cf4a04b1f08728e70f663f83781de19d785"
+        url = "https://github.com/denoland/deno/releases/download/v2.9.6/deno-x86_64-unknown-linux-gnu.zip"
+        sha256 = "394f07f4da2bebe6ce6f1e7ce0fa16429b29b08c35e3fac3fe25972676dff4b2"
         format = "zip"
         extract = true
 
         [resources.sources.deno.arm64]
-        url = "https://github.com/denoland/deno/releases/download/v2.1.4/deno-aarch64-unknown-linux-gnu.zip"
-        sha256 = "93ad8efe6f60da8566652dfd39cf2a23cb0e35d8c6d6faac7392a917d2b50039"
+        url = "https://github.com/denoland/deno/releases/download/v2.9.6/deno-aarch64-unknown-linux-gnu.zip"
+        sha256 = "9a46afc6c392c7cd2ff71a31558935545b46408d0e87f7a86908c712721c046e"
 
     [resources.system_user]
 

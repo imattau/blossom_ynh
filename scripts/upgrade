@@ -25,10 +25,11 @@ export DENO_DIR="$install_dir/.deno-cache"
 export PATH="$install_dir/.deno:$PATH"
 pushd "$install_dir" >/dev/null
 ynh_exec_and_print_stderr_only_if_error "$install_dir/.deno/deno" task build
+ynh_exec_and_print_stderr_only_if_error "$install_dir/.deno/deno" cache main.ts
 popd >/dev/null
 
 chown -R "$app:$app" "$install_dir" "$data_dir"
 yunohost service add "$app" --description="Blossom blob storage server" --log="/var/log/$app/$app.log"
 ynh_config_add_systemd --service="$app" --template="systemd.service"
 ynh_config_add_nginx
-ynh_systemctl --service="$app" --action=start --log_path=systemd --wait_until="Listening"
+ynh_systemctl --service="$app" --action=start --log_path=systemd --wait_until="Blossom Server listening"
