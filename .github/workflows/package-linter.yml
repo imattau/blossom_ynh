@@ -1,0 +1,28 @@
+name: YunoHost package linter
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package-linter:
+    name: Lint YunoHost package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out package
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check package with YunoHost linter
+        run: |
+          git clone --depth 1 https://github.com/YunoHost/package_linter.git "$RUNNER_TEMP/package_linter"
+          python -m pip install --requirement "$RUNNER_TEMP/package_linter/requirements.txt"
+          python "$RUNNER_TEMP/package_linter/package_linter.py" "$GITHUB_WORKSPACE"
