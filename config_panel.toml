@@ -24,27 +24,27 @@ version = "1.0"
         [main.s3.endpoint]
         ask.en = "S3 endpoint"
         type = "string"
-        bind = "storage>s3>endpoint:__INSTALL_DIR__/config.yml"
+        bind = "s3>endpoint:__INSTALL_DIR__/config.yml"
 
         [main.s3.bucket]
         ask.en = "S3 bucket"
         type = "string"
-        bind = "storage>s3>bucket:__INSTALL_DIR__/config.yml"
+        bind = "s3>bucket:__INSTALL_DIR__/config.yml"
 
         [main.s3.access_key]
         ask.en = "S3 access key"
         type = "string"
-        bind = "storage>s3>accessKey:__INSTALL_DIR__/config.yml"
+        bind = "s3>accessKey:__INSTALL_DIR__/config.yml"
 
         [main.s3.secret_key]
         ask.en = "S3 secret key"
         type = "password"
-        bind = "storage>s3>secretKey:__INSTALL_DIR__/config.yml"
+        bind = "s3>secretKey:__INSTALL_DIR__/config.yml"
 
         [main.s3.region]
         ask.en = "S3 region"
         type = "string"
-        bind = "storage>s3>region:__INSTALL_DIR__/config.yml"
+        bind = "s3>region:__INSTALL_DIR__/config.yml"
 
     [main.features]
         [main.features.enable_dashboard]
@@ -120,7 +120,7 @@ version = "1.0"
         help.en = "webp offers the best compression for web delivery."
         type = "select"
         choices = ["webp", "jpeg", "png"]
-        bind = "media>image>outputFormat:__INSTALL_DIR__/config.yml"
+        bind = "image>outputFormat:__INSTALL_DIR__/config.yml"
 
         [media.image.media_image_quality]
         ask.en = "Quality"
@@ -128,44 +128,44 @@ version = "1.0"
         type = "number"
         min = 1
         max = 100
-        bind = "media>image>quality:__INSTALL_DIR__/config.yml"
+        bind = "image>quality:__INSTALL_DIR__/config.yml"
 
         [media.image.media_image_max_width]
         ask.en = "Max width (px)"
         type = "number"
         min = 1
-        bind = "media>image>maxWidth:__INSTALL_DIR__/config.yml"
+        bind = "image>maxWidth:__INSTALL_DIR__/config.yml"
 
         [media.image.media_image_max_height]
         ask.en = "Max height (px)"
         type = "number"
         min = 1
-        bind = "media>image>maxHeight:__INSTALL_DIR__/config.yml"
+        bind = "image>maxHeight:__INSTALL_DIR__/config.yml"
 
         [media.image.media_image_maintain_aspect_ratio]
         ask.en = "Maintain aspect ratio when resizing"
         help.en = "When off, images are stretched to exactly the max width x height instead of being scaled down to fit."
         type = "boolean"
-        bind = "media>image>maintainAspectRatio:__INSTALL_DIR__/config.yml"
+        bind = "image>maintainAspectRatio:__INSTALL_DIR__/config.yml"
 
         [media.image.media_image_progressive]
         ask.en = "Progressive / interlaced encoding"
         help.en = "Progressive JPEG / interlaced PNG for better streaming on slow connections. No effect when output format is webp."
         type = "boolean"
-        bind = "media>image>progressive:__INSTALL_DIR__/config.yml"
+        bind = "image>progressive:__INSTALL_DIR__/config.yml"
 
         [media.image.media_image_keep_exif]
         ask.en = "Keep EXIF metadata"
         help.en = "Off (recommended) strips EXIF data such as GPS location from uploaded images for privacy."
         type = "boolean"
-        bind = "media>image>keepExif:__INSTALL_DIR__/config.yml"
+        bind = "image>keepExif:__INSTALL_DIR__/config.yml"
 
         [media.image.media_image_fps]
         ask.en = "Max animated GIF frame rate"
         help.en = "Frames exceeding this rate are dropped."
         type = "number"
         min = 1
-        bind = "media>image>fps:__INSTALL_DIR__/config.yml"
+        bind = "image>fps:__INSTALL_DIR__/config.yml"
 
     [media.video]
         [media.video.video_profile]
@@ -187,18 +187,18 @@ version = "1.0"
         type = "number"
         min = 0
         max = 100
-        bind = "media>video>quality:__INSTALL_DIR__/config.yml"
+        bind = "video>quality:__INSTALL_DIR__/config.yml"
 
         [media.video.media_video_max_height]
         ask.en = "Max height (px)"
         help.en = "Width is scaled proportionally."
         type = "number"
         min = 1
-        bind = "media>video>maxHeight:__INSTALL_DIR__/config.yml"
+        bind = "video>maxHeight:__INSTALL_DIR__/config.yml"
 
         [media.video.media_video_max_fps]
         ask.en = "Max frame rate"
         help.en = "Frames above this threshold are dropped."
         type = "number"
         min = 1
-        bind = "media>video>maxFps:__INSTALL_DIR__/config.yml"
+        bind = "video>maxFps:__INSTALL_DIR__/config.yml"
