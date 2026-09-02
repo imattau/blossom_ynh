@@ -3,7 +3,7 @@ packaging_format = 2
 id = "blossom"
 name = "Blossom Server"
 description.en = "Self-hosted content-addressed blob storage server implementing the Blossom protocol for Nostr"
-version = "0.1.11~ynh1"
+version = "0.1.12~ynh1"
 maintainers = ["imattau"]
 
 [upstream]
@@ -34,7 +34,8 @@ ram.runtime = "256M"
 
     [install.init_main_permission]
     type = "group"
-    default = "all_users"
+    default = "visitors"
+    help.en = "Blossom clients (Nostr apps) are not YunoHost users - they authenticate uploads/deletes with their own Nostr-signed requests, not portal login. Leave this as visitors unless you specifically want to gate the whole server behind YunoHost SSO."
 
     [install.enable_dashboard]
     type = "boolean"
