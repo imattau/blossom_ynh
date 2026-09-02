@@ -3,7 +3,7 @@ packaging_format = 2
 id = "blossom"
 name = "Blossom Server"
 description.en = "Self-hosted content-addressed blob storage server implementing the Blossom protocol for Nostr"
-version = "0.1.10~ynh1"
+version = "0.1.11~ynh1"
 maintainers = ["imattau"]
 
 [upstream]
@@ -31,6 +31,10 @@ ram.runtime = "256M"
 
     [install.admin]
     type = "user"
+
+    [install.init_main_permission]
+    type = "group"
+    default = "all_users"
 
     [install.enable_dashboard]
     type = "boolean"
@@ -111,3 +115,7 @@ ram.runtime = "256M"
 
     [resources.apt]
         packages = "ffmpeg"
+
+    [resources.permissions]
+        [resources.permissions.main]
+        url = "/"
