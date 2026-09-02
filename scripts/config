@@ -29,48 +29,93 @@ ynh_app_config_apply() {
 		fi
 	fi
 
-	max_upload_size="$(ynh_upload_size_to_bytes "${max_upload_size:-2147483648}")"
+	# config.yml.j2 renders every field regardless of which config-panel
+	# section prompted this apply, but a caller (the web UI, or an API call
+	# like `app_config_set --key=main`) can submit just one panel at a
+	# time - options belonging to the *other* panel (e.g. every Media tab
+	# field, when only Main was submitted) never get set as bash vars at
+	# all, and used to crash the render with a Jinja UndefinedError.
+	#
+	# ${var-default} (no colon) only substitutes when $var is entirely
+	# unset, never when it's set-but-empty - unlike ${var:-default}, which
+	# would also override a field deliberately submitted as empty (e.g.
+	# invite_pubkeys cleared out). So: prefer whatever this submission
+	# actually set, and only reach for the file's current value when this
+	# panel never touched the field at all.
+	public_domain="${public_domain-$(blossom_config_get_or_default publicDomain "" "" "$domain")}"
+	storage_backend="${storage_backend-$(blossom_config_get_or_default backend '^storage:' '^upload:' local)}"
+	s3_endpoint="${endpoint-$(blossom_config_get_or_default endpoint '^storage:' '^upload:' https://s3.invalid)}"
+	s3_bucket="${bucket-$(blossom_config_get_or_default bucket '^storage:' '^upload:' not-configured)}"
+	s3_access_key="${access_key-$(blossom_config_get_or_default accessKey '^storage:' '^upload:' not-configured)}"
+	s3_secret_key="${secret_key-$(blossom_config_get_or_default secretKey '^storage:' '^upload:' unset-s3-secret)}"
+	s3_region="${region-$(blossom_config_get_or_default region '^storage:' '^upload:' us-east-1)}"
+	storage_remove_when_no_owners="${storage_remove_when_no_owners-$(blossom_config_get_or_default removeWhenNoOwners '^storage:' '^upload:' false)}"
+
+	max_upload_size="${max_upload_size-$(get__max_upload_size)}"
+	upload_require_auth="${upload_require_auth-$(blossom_config_get_or_default requireAuth '^upload:' '^mirror:' true)}"
+	upload_require_pubkey_in_rule="${upload_require_pubkey_in_rule-$(blossom_config_get_or_default requirePubkeyInRule '^upload:' '^mirror:' false)}"
+	invite_pubkeys="${invite_pubkeys-$(ynh_app_setting_get_or_default invite_pubkeys "")}"
+
+	mirror_enabled="${enable_mirror-$(blossom_config_get_or_default enabled '^mirror:' '^delete:' true)}"
+	mirror_require_auth="${mirror_require_auth-$(blossom_config_get_or_default requireAuth '^mirror:' '^delete:' true)}"
+	delete_require_auth="${delete_require_auth-$(blossom_config_get_or_default requireAuth '^delete:' '^list:' true)}"
+
+	list_enabled="${enable_listing-$(blossom_config_get_or_default enabled '^list:' '^media:' false)}"
+	list_require_auth="${list_require_auth-$(blossom_config_get_or_default requireAuth '^list:' '^media:' false)}"
+	list_allow_list_others="${list_allow_list_others-$(blossom_config_get_or_default allowListOthers '^list:' '^media:' true)}"
+
+	media_enabled="${enable_media-$(blossom_config_get_or_default enabled '^media:' '^report:' false)}"
+	media_require_auth="${media_require_auth-$(blossom_config_get_or_default requireAuth '^media:' '^report:' true)}"
+	media_max_upload_size="${media_max_upload_size-$(get__media_max_upload_size)}"
+
+	media_image_quality="${media_image_quality-$(blossom_config_get_or_default quality '^  image:' '^  video:' 90)}"
+	media_image_progressive="${media_image_progressive-$(blossom_config_get_or_default progressive '^  image:' '^  video:' true)}"
+	media_image_max_width="${media_image_max_width-$(blossom_config_get_or_default maxWidth '^  image:' '^  video:' 1920)}"
+	media_image_max_height="${media_image_max_height-$(blossom_config_get_or_default maxHeight '^  image:' '^  video:' 1080)}"
+	media_image_output_format="${media_image_output_format-$(blossom_config_get_or_default outputFormat '^  image:' '^  video:' webp)}"
+	media_image_maintain_aspect_ratio="${media_image_maintain_aspect_ratio-$(blossom_config_get_or_default maintainAspectRatio '^  image:' '^  video:' true)}"
+	media_image_keep_exif="${media_image_keep_exif-$(blossom_config_get_or_default keepExif '^  image:' '^  video:' false)}"
+	media_image_fps="${media_image_fps-$(blossom_config_get_or_default fps '^  image:' '^  video:' 30)}"
+
+	media_video_quality="${media_video_quality-$(blossom_config_get_or_default quality '^  video:' '^report:' 90)}"
+	media_video_max_height="${media_video_max_height-$(blossom_config_get_or_default maxHeight '^  video:' '^report:' 1080)}"
+	media_video_max_fps="${media_video_max_fps-$(blossom_config_get_or_default maxFps '^  video:' '^report:' 30)}"
+
+	landing_title="${landing_title-$(blossom_config_get_or_default title '^landing:' '^dashboard:' "$app")}"
+
+	dashboard_enabled="${enable_dashboard-$(blossom_config_get_or_default enabled '^dashboard:' "" false)}"
+	dashboard_password="${dashboard_password-$(blossom_config_get_or_default password '^dashboard:' "" "$(ynh_string_random --length=24)")}"
+
+	# Now that every field has a real value one way or another: convert
+	# the ones that need it. Selects carrying human presets need bytes;
+	# every boolean needs YAML's literal true/false, not "1"/"0"
+	# (BooleanOption's default yes=1/no=0) - rendering "0"/"1" as-is would
+	# crash-loop the service exactly like the AF_NETLINK/ProtectHome bugs.
+	max_upload_size="$(ynh_upload_size_to_bytes "$max_upload_size")"
 	max_upload_size_mb=$(( (max_upload_size + 1048575) / 1048576 ))
 	MAX_UPLOAD_SIZE_MB="$max_upload_size_mb"
+	media_max_upload_size="$(ynh_upload_size_to_bytes "$media_max_upload_size")"
 
-	media_max_upload_size="$(ynh_upload_size_to_bytes "${media_max_upload_size:-1073741824}")"
-
-	video_profile="${video_profile:-mp4_h264_aac}"
+	video_profile="$(ynh_app_setting_get_or_default video_profile mp4_h264_aac)"
 	media_video_format="$(ynh_video_profile_to_format "$video_profile")"
 	media_video_codec="$(ynh_video_profile_to_video_codec "$video_profile")"
 	media_audio_codec="$(ynh_video_profile_to_audio_codec "$video_profile")"
 
-	# config.yml.j2 (shared with install/upgrade) expects these variable
-	# names; a handful of config-panel question ids don't match them
-	# directly (nested under [main.s3]/boolean feature toggles), so bridge
-	# them here rather than renaming the questions and orphaning existing
-	# stored settings.
-	s3_endpoint="${endpoint:-https://s3.invalid}"
-	s3_bucket="${bucket:-not-configured}"
-	s3_access_key="${access_key:-not-configured}"
-	s3_secret_key="${secret_key:-unset-s3-secret}"
-	s3_region="${region:-us-east-1}"
-
-	dashboard_enabled="$(ynh_bool_to_yaml "${enable_dashboard:-0}")"
-	mirror_enabled="$(ynh_bool_to_yaml "${enable_mirror:-0}")"
-	list_enabled="$(ynh_bool_to_yaml "${enable_listing:-0}")"
-	media_enabled="$(ynh_bool_to_yaml "${enable_media:-0}")"
-
-	# Every other boolean field: config-panel booleans default to "1"/"0"
-	# (BooleanOption's yes=1/no=0), not the literal YAML "true"/"false"
-	# Blossom's schema needs - rendering "0"/"1" as-is would crash-loop the
-	# service exactly like the AF_NETLINK/ProtectHome bugs did.
-	upload_require_auth="$(ynh_bool_to_yaml "${upload_require_auth:-1}")"
-	upload_require_pubkey_in_rule="$(ynh_bool_to_yaml "${upload_require_pubkey_in_rule:-0}")"
-	mirror_require_auth="$(ynh_bool_to_yaml "${mirror_require_auth:-1}")"
-	delete_require_auth="$(ynh_bool_to_yaml "${delete_require_auth:-1}")"
-	media_require_auth="$(ynh_bool_to_yaml "${media_require_auth:-1}")"
-	list_require_auth="$(ynh_bool_to_yaml "${list_require_auth:-0}")"
-	list_allow_list_others="$(ynh_bool_to_yaml "${list_allow_list_others:-1}")"
-	storage_remove_when_no_owners="$(ynh_bool_to_yaml "${storage_remove_when_no_owners:-0}")"
-	media_image_progressive="$(ynh_bool_to_yaml "${media_image_progressive:-1}")"
-	media_image_maintain_aspect_ratio="$(ynh_bool_to_yaml "${media_image_maintain_aspect_ratio:-1}")"
-	media_image_keep_exif="$(ynh_bool_to_yaml "${media_image_keep_exif:-0}")"
+	dashboard_enabled="$(ynh_bool_to_yaml "$dashboard_enabled")"
+	mirror_enabled="$(ynh_bool_to_yaml "$mirror_enabled")"
+	list_enabled="$(ynh_bool_to_yaml "$list_enabled")"
+	media_enabled="$(ynh_bool_to_yaml "$media_enabled")"
+	upload_require_auth="$(ynh_bool_to_yaml "$upload_require_auth")"
+	upload_require_pubkey_in_rule="$(ynh_bool_to_yaml "$upload_require_pubkey_in_rule")"
+	mirror_require_auth="$(ynh_bool_to_yaml "$mirror_require_auth")"
+	delete_require_auth="$(ynh_bool_to_yaml "$delete_require_auth")"
+	media_require_auth="$(ynh_bool_to_yaml "$media_require_auth")"
+	list_require_auth="$(ynh_bool_to_yaml "$list_require_auth")"
+	list_allow_list_others="$(ynh_bool_to_yaml "$list_allow_list_others")"
+	storage_remove_when_no_owners="$(ynh_bool_to_yaml "$storage_remove_when_no_owners")"
+	media_image_progressive="$(ynh_bool_to_yaml "$media_image_progressive")"
+	media_image_maintain_aspect_ratio="$(ynh_bool_to_yaml "$media_image_maintain_aspect_ratio")"
+	media_image_keep_exif="$(ynh_bool_to_yaml "$media_image_keep_exif")"
 
 	# _ynh_app_config_apply above already wrote every bind-based field
 	# through sed (raw select strings and all - the conversions above fix
