@@ -9,7 +9,6 @@ storage:
   backend: {{ storage_backend }}
   local:
     dir: "{{ data_dir }}/blobs"
-{% if storage_backend == 's3' %}
   s3:
     endpoint: "{{ s3_endpoint }}"
     bucket: "{{ s3_bucket }}"
@@ -17,7 +16,6 @@ storage:
     secretKey: "{{ s3_secret_key }}"
     region: "{{ s3_region }}"
     tmpDir: "{{ data_dir }}/s3-tmp"
-{% endif %}
 
 upload:
   enabled: true
