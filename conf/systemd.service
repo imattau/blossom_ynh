@@ -28,7 +28,7 @@ ProtectKernelTunables=true
 LockPersonality=true
 SystemCallArchitectures=native
 ReadWritePaths=__DATA_DIR__ __INSTALL_DIR__/.deno-cache
-ProtectHome=true
+ProtectHome=read-only
 
 [Install]
 WantedBy=multi-user.target
