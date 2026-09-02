@@ -48,8 +48,14 @@ delete_require_auth=true
 media_require_auth=true
 list_require_auth=false
 
+mirror_enabled=true
+list_enabled=false
+media_enabled=false
+
 storage_remove_when_no_owners=false
 upload_require_pubkey_in_rule=false
+invite_pubkeys=""
+ynh_app_setting_set --app="$app" --key=invite_pubkeys --value=""
 list_allow_list_others=true
 landing_title="$app"
 

@@ -15,57 +15,74 @@ get__media_max_upload_size() {
 	ynh_bytes_to_upload_size_choice "$(ynh_read_var_in_file --file="$install_dir/config.yml" --key=maxSize --after='^media:')"
 }
 
-# ynh_write_var_in_file (used by the generic bind-based apply for every
-# other field) does its replacement with sed, and sed treats an unescaped
-# '&' in a replacement string as "insert the whole match" - any password
-# containing '&' gets silently corrupted on write instead of stored as
-# typed. Bypass that entirely for this one field: Python's re.sub with a
-# function (not a string) as the replacement never interprets backslashes
-# or '&' specially, so the password is written back byte-for-byte,
-# properly escaped for a YAML double-quoted string.
-set__dashboard_password() {
-	python3 - "$install_dir/config.yml" "$dashboard_password" << 'PYEOF'
-import re
-import sys
-
-path, password = sys.argv[1], sys.argv[2]
-escaped = password.replace("\\", "\\\\").replace('"', '\\"')
-
-with open(path) as f:
-    content = f.read()
-
-content, n = re.subn(
-    r'(?m)^(  password: ").*(")$',
-    lambda m: m.group(1) + escaped + m.group(2),
-    content,
-    count=1,
-)
-if n != 1:
-    sys.exit("dashboard password line not found in config.yml")
-
-with open(path, "w") as f:
-    f.write(content)
-PYEOF
-	ynh_app_setting_set --app="$app" --key=dashboard_password --value="$dashboard_password"
-}
-
 ynh_app_config_apply() {
 	ynh_systemctl --service="$app" --action=stop || true
 	_ynh_app_config_apply
-	max_upload_size="${max_upload_size:-2147483648}"
-	max_upload_size="$(ynh_upload_size_to_bytes "$max_upload_size")"
+
+	# Turning on invite-only uploads with no invited pubkeys would silently
+	# lock out every uploader (upstream's own requirePubkeyInRule semantics:
+	# with no rule carrying a pubkeys list, every rule is skipped and every
+	# upload is rejected). Refuse to save that combination.
+	if [ "${upload_require_pubkey_in_rule:-0}" = "1" ] || [ "${upload_require_pubkey_in_rule:-false}" = "true" ]; then
+		if [ -z "${invite_pubkeys:-}" ]; then
+			ynh_die "Invite-only uploads requires at least one entry in \"Invited pubkeys\" - leaving that list empty would lock out every uploader."
+		fi
+	fi
+
+	max_upload_size="$(ynh_upload_size_to_bytes "${max_upload_size:-2147483648}")"
 	max_upload_size_mb=$(( (max_upload_size + 1048575) / 1048576 ))
 	MAX_UPLOAD_SIZE_MB="$max_upload_size_mb"
-	ynh_write_var_in_file --file="$install_dir/config.yml" --key="maxSize" --after="^upload:" --value="$max_upload_size"
 
-	media_max_upload_size="${media_max_upload_size:-1073741824}"
-	media_max_upload_size="$(ynh_upload_size_to_bytes "$media_max_upload_size")"
-	ynh_write_var_in_file --file="$install_dir/config.yml" --key="maxSize" --after="^media:" --value="$media_max_upload_size"
+	media_max_upload_size="$(ynh_upload_size_to_bytes "${media_max_upload_size:-1073741824}")"
 
 	video_profile="${video_profile:-mp4_h264_aac}"
-	ynh_write_var_in_file --file="$install_dir/config.yml" --key="format" --after="^  video:" --value="$(ynh_video_profile_to_format "$video_profile")"
-	ynh_write_var_in_file --file="$install_dir/config.yml" --key="videoCodec" --after="^  video:" --value="$(ynh_video_profile_to_video_codec "$video_profile")"
-	ynh_write_var_in_file --file="$install_dir/config.yml" --key="audioCodec" --after="^  video:" --value="$(ynh_video_profile_to_audio_codec "$video_profile")"
+	media_video_format="$(ynh_video_profile_to_format "$video_profile")"
+	media_video_codec="$(ynh_video_profile_to_video_codec "$video_profile")"
+	media_audio_codec="$(ynh_video_profile_to_audio_codec "$video_profile")"
+
+	# config.yml.j2 (shared with install/upgrade) expects these variable
+	# names; a handful of config-panel question ids don't match them
+	# directly (nested under [main.s3]/boolean feature toggles), so bridge
+	# them here rather than renaming the questions and orphaning existing
+	# stored settings.
+	s3_endpoint="${endpoint:-https://s3.invalid}"
+	s3_bucket="${bucket:-not-configured}"
+	s3_access_key="${access_key:-not-configured}"
+	s3_secret_key="${secret_key:-not-configured-secret}"
+	s3_region="${region:-us-east-1}"
+
+	dashboard_enabled="$(ynh_bool_to_yaml "${enable_dashboard:-0}")"
+	mirror_enabled="$(ynh_bool_to_yaml "${enable_mirror:-0}")"
+	list_enabled="$(ynh_bool_to_yaml "${enable_listing:-0}")"
+	media_enabled="$(ynh_bool_to_yaml "${enable_media:-0}")"
+
+	# Every other boolean field: config-panel booleans default to "1"/"0"
+	# (BooleanOption's yes=1/no=0), not the literal YAML "true"/"false"
+	# Blossom's schema needs - rendering "0"/"1" as-is would crash-loop the
+	# service exactly like the AF_NETLINK/ProtectHome bugs did.
+	upload_require_auth="$(ynh_bool_to_yaml "${upload_require_auth:-1}")"
+	upload_require_pubkey_in_rule="$(ynh_bool_to_yaml "${upload_require_pubkey_in_rule:-0}")"
+	mirror_require_auth="$(ynh_bool_to_yaml "${mirror_require_auth:-1}")"
+	delete_require_auth="$(ynh_bool_to_yaml "${delete_require_auth:-1}")"
+	media_require_auth="$(ynh_bool_to_yaml "${media_require_auth:-1}")"
+	list_require_auth="$(ynh_bool_to_yaml "${list_require_auth:-0}")"
+	list_allow_list_others="$(ynh_bool_to_yaml "${list_allow_list_others:-1}")"
+	storage_remove_when_no_owners="$(ynh_bool_to_yaml "${storage_remove_when_no_owners:-0}")"
+	media_image_progressive="$(ynh_bool_to_yaml "${media_image_progressive:-1}")"
+	media_image_maintain_aspect_ratio="$(ynh_bool_to_yaml "${media_image_maintain_aspect_ratio:-1}")"
+	media_image_keep_exif="$(ynh_bool_to_yaml "${media_image_keep_exif:-0}")"
+
+	# _ynh_app_config_apply above already wrote every bind-based field
+	# through sed (raw select strings and all - the conversions above fix
+	# those up), but storage.rules is a multi-line list that can't be
+	# surgically patched that way, and the sed-replacement '&'-corruption
+	# bug (see 0.1.23) is a standing risk for any field going through that
+	# path. Re-render the whole file from the current (possibly
+	# just-changed) values instead - Jinja substitution has neither
+	# problem, and this call's own checksum bookkeeping supersedes
+	# whatever the generic apply just did.
+	ynh_config_add --jinja --template="config.yml.j2" --destination="$install_dir/config.yml"
+	chmod 0640 "$install_dir/config.yml"
 
 	ynh_config_add_nginx
 	ynh_systemctl --service="$app" --action=start --log_path=systemd --wait_until="Blossom Server listening"

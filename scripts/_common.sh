@@ -50,6 +50,19 @@ blossom_config_get_or_default() {
 	fi
 }
 
+# Normalizes any of the truthy/falsy string forms YunoHost boolean
+# questions may carry ("1"/"0", "true"/"false", "yes"/"no", ...) into the
+# literal YAML boolean word config.yml.j2 needs. Config-panel boolean
+# fields default to "1"/"0" (BooleanOption's yes=1/no=0), which is not
+# valid YAML for Blossom's z.boolean() schema fields - rendering that
+# raw would crash-loop the service on the next restart.
+ynh_bool_to_yaml() {
+	case "$1" in
+		1|true|True|TRUE|yes|Yes|YES|on|On|ON|t|T) printf 'true' ;;
+		*) printf 'false' ;;
+	esac
+}
+
 ynh_upload_size_to_bytes() {
 	case "$1" in
 		"100 MiB") printf '104857600' ;;

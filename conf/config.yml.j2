@@ -17,6 +17,31 @@ storage:
     region: "{{ s3_region }}"
     tmpDir: "{{ data_dir }}/s3-tmp"
   removeWhenNoOwners: {{ storage_remove_when_no_owners }}
+  rules:
+    - type: "image/*"
+      expiration: 1 month
+{% if invite_pubkeys %}
+      pubkeys:
+{% for pubkey in invite_pubkeys.split(',') %}
+        - "{{ pubkey.strip() }}"
+{% endfor %}
+{% endif %}
+    - type: "video/*"
+      expiration: 1 week
+{% if invite_pubkeys %}
+      pubkeys:
+{% for pubkey in invite_pubkeys.split(',') %}
+        - "{{ pubkey.strip() }}"
+{% endfor %}
+{% endif %}
+    - type: "*"
+      expiration: 1 week
+{% if invite_pubkeys %}
+      pubkeys:
+{% for pubkey in invite_pubkeys.split(',') %}
+        - "{{ pubkey.strip() }}"
+{% endfor %}
+{% endif %}
 
 upload:
   enabled: true
@@ -26,19 +51,19 @@ upload:
   requirePubkeyInRule: {{ upload_require_pubkey_in_rule }}
 
 mirror:
-  enabled: true
+  enabled: {{ mirror_enabled }}
   requireAuth: {{ mirror_require_auth }}
 
 delete:
   requireAuth: {{ delete_require_auth }}
 
 list:
-  enabled: false
+  enabled: {{ list_enabled }}
   requireAuth: {{ list_require_auth }}
   allowListOthers: {{ list_allow_list_others }}
 
 media:
-  enabled: false
+  enabled: {{ media_enabled }}
   requireAuth: {{ media_require_auth }}
   maxSize: {{ media_max_upload_size }}
   tmpDir: "{{ data_dir }}/media-tmp"

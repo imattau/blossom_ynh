@@ -46,6 +46,7 @@ max_upload_size="$(blossom_config_get_or_default maxSize '^upload:' '^mirror:' "
 max_upload_size_mb=$(( (max_upload_size + 1048575) / 1048576 ))
 MAX_UPLOAD_SIZE_MB="$max_upload_size_mb"
 upload_require_pubkey_in_rule="$(blossom_config_get_or_default requirePubkeyInRule '^upload:' '^mirror:' false)"
+invite_pubkeys="$(ynh_app_setting_get_or_default invite_pubkeys "")"
 
 default_dashboard_enabled=false
 if [ "${enable_dashboard:-0}" -eq 1 ]; then default_dashboard_enabled=true; fi
@@ -74,6 +75,16 @@ delete_require_auth="$(blossom_config_get_or_default requireAuth '^delete:' '^li
 media_require_auth="$(blossom_config_get_or_default requireAuth '^media:' '^report:' true)"
 list_require_auth="$(blossom_config_get_or_default requireAuth '^list:' '^media:' false)"
 list_allow_list_others="$(blossom_config_get_or_default allowListOthers '^list:' '^media:' true)"
+
+# mirror/list/media "enabled" were hardcoded literals in config.yml.j2
+# until now, so a config-panel toggle applied fine to the file at the
+# time but got silently reverted back to that literal on the next
+# upgrade's re-render. Read back whatever's actually in the file (the
+# admin's real current setting, whichever way it was last changed) so
+# this upgrade doesn't itself cause that regression.
+mirror_enabled="$(blossom_config_get_or_default enabled '^mirror:' '^delete:' true)"
+list_enabled="$(blossom_config_get_or_default enabled '^list:' '^media:' false)"
+media_enabled="$(blossom_config_get_or_default enabled '^media:' '^report:' false)"
 
 default_landing_title="$app"
 landing_title="$(blossom_config_get_or_default title '^landing:' '^dashboard:' "$default_landing_title")"

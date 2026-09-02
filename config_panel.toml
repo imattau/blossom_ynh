@@ -101,9 +101,14 @@ version = "1.0"
 
         [main.auth.upload_require_pubkey_in_rule]
         ask.en = "Invite-only uploads"
-        help.en = "When on, uploads are rejected unless the uploader's pubkey is explicitly listed in a storage rule. Only meaningful if you've configured pubkey-scoped storage rules; leave off for an open server."
+        help.en = "When on, uploads are rejected unless the uploader's pubkey is listed below. Requires at least one pubkey in \"Invited pubkeys\" - turning this on with that list empty would lock out every uploader, so it's rejected."
         type = "boolean"
         bind = "upload>requirePubkeyInRule:__INSTALL_DIR__/config.yml"
+
+        [main.auth.invite_pubkeys]
+        ask.en = "Invited pubkeys"
+        help.en = "Hex-encoded Nostr pubkeys (64 lowercase hex characters each, not npub) allowed to upload when invite-only uploads is on. Most Nostr clients can show a pubkey in hex form even if they display npub by default. Add one at a time; press enter after each."
+        type = "tags"
 
         [main.auth.mirror_require_auth]
         ask.en = "Require Nostr auth for mirror requests"
