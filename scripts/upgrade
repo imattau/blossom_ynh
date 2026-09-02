@@ -37,7 +37,7 @@ storage_backend="$(blossom_config_get_or_default backend '^storage:' '^upload:' 
 s3_endpoint="$(blossom_config_get_or_default endpoint '^storage:' '^upload:' "${s3_endpoint:-https://s3.invalid}")"
 s3_bucket="$(blossom_config_get_or_default bucket '^storage:' '^upload:' "${s3_bucket:-not-configured}")"
 s3_access_key="$(blossom_config_get_or_default accessKey '^storage:' '^upload:' "${s3_access_key:-not-configured}")"
-s3_secret_key="$(blossom_config_get_or_default secretKey '^storage:' '^upload:' "${s3_secret_key:-not-configured-secret}")"
+s3_secret_key="$(blossom_config_get_or_default secretKey '^storage:' '^upload:' "${s3_secret_key:-unset-s3-secret}")"
 s3_region="$(blossom_config_get_or_default region '^storage:' '^upload:' "${s3_region:-us-east-1}")"
 storage_remove_when_no_owners="$(blossom_config_get_or_default removeWhenNoOwners '^storage:' '^upload:' false)"
 

@@ -77,7 +77,14 @@ media_video_codec="$(ynh_video_profile_to_video_codec "$video_profile")"
 media_audio_codec="$(ynh_video_profile_to_audio_codec "$video_profile")"
 ynh_app_setting_set --app="$app" --key=video_profile --value="$video_profile"
 
-if [ "$storage_backend" = "s3" ] && { [ -z "${s3_endpoint:-}" ] || [ -z "${s3_bucket:-}" ] || [ -z "${s3_access_key:-}" ] || [ -z "${s3_secret_key:-}" ] || [ "$s3_endpoint" = "https://s3.invalid" ] || [ "$s3_bucket" = "not-configured" ] || [ "$s3_access_key" = "not-configured" ] || [ "$s3_secret_key" = "not-configured-secret" ]; }; then
+# s3_secret_key's placeholder deliberately shares no substring with the
+# other placeholders: YunoHost's operation-log redaction does a blind
+# global string-replace per flagged secret value, and s3_access_key's
+# "not-configured" being a literal prefix of a would-be
+# "not-configured-secret" corrupted the logged YAML (the shorter value
+# got redacted first, mangling the substring inside the longer one and
+# leaving an unquoted "-secret" dangling after the closing quote).
+if [ "$storage_backend" = "s3" ] && { [ -z "${s3_endpoint:-}" ] || [ -z "${s3_bucket:-}" ] || [ -z "${s3_access_key:-}" ] || [ -z "${s3_secret_key:-}" ] || [ "$s3_endpoint" = "https://s3.invalid" ] || [ "$s3_bucket" = "not-configured" ] || [ "$s3_access_key" = "not-configured" ] || [ "$s3_secret_key" = "unset-s3-secret" ]; }; then
 	ynh_die "S3 storage requires endpoint, bucket, access key, and secret key"
 fi
 s3_region="${s3_region:-us-east-1}"

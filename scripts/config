@@ -48,7 +48,7 @@ ynh_app_config_apply() {
 	s3_endpoint="${endpoint:-https://s3.invalid}"
 	s3_bucket="${bucket:-not-configured}"
 	s3_access_key="${access_key:-not-configured}"
-	s3_secret_key="${secret_key:-not-configured-secret}"
+	s3_secret_key="${secret_key:-unset-s3-secret}"
 	s3_region="${region:-us-east-1}"
 
 	dashboard_enabled="$(ynh_bool_to_yaml "${enable_dashboard:-0}")"
