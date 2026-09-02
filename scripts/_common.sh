@@ -20,3 +20,36 @@ ynh_upload_size_to_bytes() {
 		*) printf '%s' "$1" ;;
 	esac
 }
+
+# Maps a single video_profile setting to Blossom's three coupled
+# media.video fields (format/videoCodec/audioCodec must be a valid
+# combination or Blossom refuses to start).
+ynh_video_profile_to_format() {
+	case "$1" in
+		mp4_h264_aac) printf 'mp4' ;;
+		mp4_h265_aac) printf 'mp4' ;;
+		webm_vp9_opus) printf 'webm' ;;
+		mkv_h264_aac) printf 'mkv' ;;
+		*) ynh_die "Unknown video profile: $1" ;;
+	esac
+}
+
+ynh_video_profile_to_video_codec() {
+	case "$1" in
+		mp4_h264_aac) printf 'libx264' ;;
+		mp4_h265_aac) printf 'libx265' ;;
+		webm_vp9_opus) printf 'vp9' ;;
+		mkv_h264_aac) printf 'libx264' ;;
+		*) ynh_die "Unknown video profile: $1" ;;
+	esac
+}
+
+ynh_video_profile_to_audio_codec() {
+	case "$1" in
+		mp4_h264_aac) printf 'aac' ;;
+		mp4_h265_aac) printf 'aac' ;;
+		webm_vp9_opus) printf 'opus' ;;
+		mkv_h264_aac) printf 'aac' ;;
+		*) ynh_die "Unknown video profile: $1" ;;
+	esac
+}

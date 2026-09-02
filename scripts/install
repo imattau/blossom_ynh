@@ -23,6 +23,24 @@ delete_require_auth=true
 media_require_auth=true
 list_require_auth=false
 
+media_image_quality=90
+media_image_progressive=true
+media_image_max_width=1920
+media_image_max_height=1080
+media_image_output_format=webp
+media_image_maintain_aspect_ratio=true
+media_image_keep_exif=false
+media_image_fps=30
+
+media_video_quality=90
+media_video_max_height=1080
+media_video_max_fps=30
+video_profile=mp4_h264_aac
+media_video_format="$(ynh_video_profile_to_format "$video_profile")"
+media_video_codec="$(ynh_video_profile_to_video_codec "$video_profile")"
+media_audio_codec="$(ynh_video_profile_to_audio_codec "$video_profile")"
+ynh_app_setting_set --app="$app" --key=video_profile --value="$video_profile"
+
 if [ "$storage_backend" = "s3" ] && { [ -z "${s3_endpoint:-}" ] || [ -z "${s3_bucket:-}" ] || [ -z "${s3_access_key:-}" ] || [ -z "${s3_secret_key:-}" ] || [ "$s3_endpoint" = "https://s3.invalid" ] || [ "$s3_bucket" = "not-configured" ] || [ "$s3_access_key" = "not-configured" ] || [ "$s3_secret_key" = "not-configured-secret" ]; }; then
 	ynh_die "S3 storage requires endpoint, bucket, access key, and secret key"
 fi

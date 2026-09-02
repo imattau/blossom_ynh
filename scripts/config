@@ -16,6 +16,11 @@ ynh_app_config_apply() {
 	media_max_upload_size="$(ynh_upload_size_to_bytes "$media_max_upload_size")"
 	ynh_write_var_in_file --file="$install_dir/config.yml" --key="maxSize" --after="^media:" --value="$media_max_upload_size"
 
+	video_profile="${video_profile:-mp4_h264_aac}"
+	ynh_write_var_in_file --file="$install_dir/config.yml" --key="format" --after="^  video:" --value="$(ynh_video_profile_to_format "$video_profile")"
+	ynh_write_var_in_file --file="$install_dir/config.yml" --key="videoCodec" --after="^  video:" --value="$(ynh_video_profile_to_video_codec "$video_profile")"
+	ynh_write_var_in_file --file="$install_dir/config.yml" --key="audioCodec" --after="^  video:" --value="$(ynh_video_profile_to_audio_codec "$video_profile")"
+
 	ynh_config_add_nginx
 	ynh_systemctl --service="$app" --action=start --log_path=systemd --wait_until="Blossom Server listening"
 }

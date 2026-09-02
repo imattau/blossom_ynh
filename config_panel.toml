@@ -104,3 +104,95 @@ version = "1.0"
         help.en = "BUD-02: require a valid signed Nostr event to list a pubkey's blobs. Only relevant when blob listing is enabled above."
         type = "boolean"
         bind = "list>requireAuth:__INSTALL_DIR__/config.yml"
+
+[media]
+    name.en = "Media transcoding"
+
+    [media.image]
+        [media.image.media_image_output_format]
+        ask.en = "Output format"
+        help.en = "webp offers the best compression for web delivery."
+        type = "select"
+        choices = ["webp", "jpeg", "png"]
+        bind = "media>image>outputFormat:__INSTALL_DIR__/config.yml"
+
+        [media.image.media_image_quality]
+        ask.en = "Quality"
+        help.en = "Output quality 0-100. Higher = better quality, larger file."
+        type = "number"
+        min = 1
+        max = 100
+        bind = "media>image>quality:__INSTALL_DIR__/config.yml"
+
+        [media.image.media_image_max_width]
+        ask.en = "Max width (px)"
+        type = "number"
+        min = 1
+        bind = "media>image>maxWidth:__INSTALL_DIR__/config.yml"
+
+        [media.image.media_image_max_height]
+        ask.en = "Max height (px)"
+        type = "number"
+        min = 1
+        bind = "media>image>maxHeight:__INSTALL_DIR__/config.yml"
+
+        [media.image.media_image_maintain_aspect_ratio]
+        ask.en = "Maintain aspect ratio when resizing"
+        help.en = "When off, images are stretched to exactly the max width x height instead of being scaled down to fit."
+        type = "boolean"
+        bind = "media>image>maintainAspectRatio:__INSTALL_DIR__/config.yml"
+
+        [media.image.media_image_progressive]
+        ask.en = "Progressive / interlaced encoding"
+        help.en = "Progressive JPEG / interlaced PNG for better streaming on slow connections. No effect when output format is webp."
+        type = "boolean"
+        bind = "media>image>progressive:__INSTALL_DIR__/config.yml"
+
+        [media.image.media_image_keep_exif]
+        ask.en = "Keep EXIF metadata"
+        help.en = "Off (recommended) strips EXIF data such as GPS location from uploaded images for privacy."
+        type = "boolean"
+        bind = "media>image>keepExif:__INSTALL_DIR__/config.yml"
+
+        [media.image.media_image_fps]
+        ask.en = "Max animated GIF frame rate"
+        help.en = "Frames exceeding this rate are dropped."
+        type = "number"
+        min = 1
+        bind = "media>image>fps:__INSTALL_DIR__/config.yml"
+
+    [media.video]
+        [media.video.video_profile]
+        ask.en = "Output profile"
+        help.en = "Sets container format, video codec, and audio codec together as a known-good combination. Blossom validates these three fields at startup and refuses to start on a mismatched combination, so they can't be set independently here."
+        type = "select"
+        choices.mp4_h264_aac = "MP4 - H.264 / AAC (recommended, most compatible)"
+        choices.mp4_h265_aac = "MP4 - H.265 / AAC (smaller files, less compatible)"
+        choices.webm_vp9_opus = "WebM - VP9 / Opus (best for web delivery)"
+        choices.mkv_h264_aac = "MKV - H.264 / AAC"
+        default = "mp4_h264_aac"
+        # No bind: format/videoCodec/audioCodec are three separate keys in
+        # config.yml that must change together, so this is applied manually
+        # in scripts/config rather than bound to a single file path.
+
+        [media.video.media_video_quality]
+        ask.en = "Quality"
+        help.en = "0-100, mapped to a CRF value. 100 = lossless, 0 = lowest quality."
+        type = "number"
+        min = 0
+        max = 100
+        bind = "media>video>quality:__INSTALL_DIR__/config.yml"
+
+        [media.video.media_video_max_height]
+        ask.en = "Max height (px)"
+        help.en = "Width is scaled proportionally."
+        type = "number"
+        min = 1
+        bind = "media>video>maxHeight:__INSTALL_DIR__/config.yml"
+
+        [media.video.media_video_max_fps]
+        ask.en = "Max frame rate"
+        help.en = "Frames above this threshold are dropped."
+        type = "number"
+        min = 1
+        bind = "media>video>maxFps:__INSTALL_DIR__/config.yml"

@@ -40,6 +40,24 @@ media:
   maxSize: {{ media_max_upload_size }}
   tmpDir: "{{ data_dir }}/media-tmp"
 
+  image:
+    quality: {{ media_image_quality }}
+    progressive: {{ media_image_progressive }}
+    maxWidth: {{ media_image_max_width }}
+    maxHeight: {{ media_image_max_height }}
+    outputFormat: {{ media_image_output_format }}
+    maintainAspectRatio: {{ media_image_maintain_aspect_ratio }}
+    keepExif: {{ media_image_keep_exif }}
+    fps: {{ media_image_fps }}
+
+  video:
+    quality: {{ media_video_quality }}
+    maxHeight: {{ media_video_max_height }}
+    maxFps: {{ media_video_max_fps }}
+    format: {{ media_video_format }}
+    videoCodec: {{ media_video_codec }}
+    audioCodec: {{ media_audio_codec }}
+
 report:
   enabled: true
 
