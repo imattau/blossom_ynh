@@ -10,7 +10,12 @@ ynh_app_config_apply() {
 	max_upload_size="$(ynh_upload_size_to_bytes "$max_upload_size")"
 	max_upload_size_mb=$(( (max_upload_size + 1048575) / 1048576 ))
 	MAX_UPLOAD_SIZE_MB="$max_upload_size_mb"
-	sed -i -E "s/^  maxSize:.*/  maxSize: $max_upload_size/" "$install_dir/config.yml"
+	ynh_write_var_in_file --file="$install_dir/config.yml" --key="maxSize" --after="^upload:" --value="$max_upload_size"
+
+	media_max_upload_size="${media_max_upload_size:-1073741824}"
+	media_max_upload_size="$(ynh_upload_size_to_bytes "$media_max_upload_size")"
+	ynh_write_var_in_file --file="$install_dir/config.yml" --key="maxSize" --after="^media:" --value="$media_max_upload_size"
+
 	ynh_config_add_nginx
 	ynh_systemctl --service="$app" --action=start --log_path=systemd --wait_until="Blossom Server listening"
 }

@@ -16,6 +16,13 @@ MAX_UPLOAD_SIZE_MB="$max_upload_size_mb"
 dashboard_enabled=false
 if [ "${enable_dashboard:-0}" -eq 1 ]; then dashboard_enabled=true; fi
 
+media_max_upload_size="$(ynh_upload_size_to_bytes "1 GiB")"
+upload_require_auth=true
+mirror_require_auth=true
+delete_require_auth=true
+media_require_auth=true
+list_require_auth=false
+
 if [ "$storage_backend" = "s3" ] && { [ -z "${s3_endpoint:-}" ] || [ -z "${s3_bucket:-}" ] || [ -z "${s3_access_key:-}" ] || [ -z "${s3_secret_key:-}" ] || [ "$s3_endpoint" = "https://s3.invalid" ] || [ "$s3_bucket" = "not-configured" ] || [ "$s3_access_key" = "not-configured" ] || [ "$s3_secret_key" = "not-configured-secret" ]; }; then
 	ynh_die "S3 storage requires endpoint, bucket, access key, and secret key"
 fi

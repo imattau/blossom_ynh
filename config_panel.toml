@@ -66,3 +66,41 @@ version = "1.0"
         ask.en = "Enable remote mirroring"
         type = "boolean"
         bind = "mirror>enabled:__INSTALL_DIR__/config.yml"
+
+        [main.features.media_max_upload_size]
+        ask.en = "Maximum media upload size"
+        help.en = "Separate size limit for /media transcoding uploads (BUD-05). Independent of the main upload size limit above."
+        type = "select"
+        choices = ["100 MiB", "500 MiB", "1 GiB", "2 GiB", "5 GiB"]
+        bind = "media>maxSize:__INSTALL_DIR__/config.yml"
+
+    [main.auth]
+        [main.auth.upload_require_auth]
+        ask.en = "Require Nostr auth for uploads"
+        help.en = "BUD-02: require a valid signed Nostr event to upload blobs. Disabling allows anonymous uploads."
+        type = "boolean"
+        bind = "upload>requireAuth:__INSTALL_DIR__/config.yml"
+
+        [main.auth.mirror_require_auth]
+        ask.en = "Require Nostr auth for mirror requests"
+        help.en = "BUD-04: require a valid signed Nostr event to mirror a remote blob onto this server."
+        type = "boolean"
+        bind = "mirror>requireAuth:__INSTALL_DIR__/config.yml"
+
+        [main.auth.delete_require_auth]
+        ask.en = "Require Nostr auth for deletes"
+        help.en = "BUD-02: require a valid signed Nostr event to delete blobs. Disabling allows anyone to delete any blob."
+        type = "boolean"
+        bind = "delete>requireAuth:__INSTALL_DIR__/config.yml"
+
+        [main.auth.media_require_auth]
+        ask.en = "Require Nostr auth for media uploads"
+        help.en = "BUD-05: require a valid signed Nostr event to upload media for transcoding."
+        type = "boolean"
+        bind = "media>requireAuth:__INSTALL_DIR__/config.yml"
+
+        [main.auth.list_require_auth]
+        ask.en = "Require Nostr auth for listing blobs"
+        help.en = "BUD-02: require a valid signed Nostr event to list a pubkey's blobs. Only relevant when blob listing is enabled above."
+        type = "boolean"
+        bind = "list>requireAuth:__INSTALL_DIR__/config.yml"

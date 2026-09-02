@@ -19,23 +19,25 @@ storage:
 
 upload:
   enabled: true
-  requireAuth: true
+  requireAuth: {{ upload_require_auth }}
   maxSize: {{ max_upload_size }}
   workers: 0
 
 mirror:
   enabled: true
-  requireAuth: true
+  requireAuth: {{ mirror_require_auth }}
 
 delete:
-  requireAuth: true
+  requireAuth: {{ delete_require_auth }}
 
 list:
   enabled: false
+  requireAuth: {{ list_require_auth }}
 
 media:
   enabled: false
-  requireAuth: true
+  requireAuth: {{ media_require_auth }}
+  maxSize: {{ media_max_upload_size }}
   tmpDir: "{{ data_dir }}/media-tmp"
 
 report:
