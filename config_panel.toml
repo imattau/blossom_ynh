@@ -109,6 +109,7 @@ version = "1.0"
         ask.en = "Invited pubkeys"
         help.en = "Hex-encoded Nostr pubkeys (64 lowercase hex characters each, not npub) allowed to upload when invite-only uploads is on. Most Nostr clients can show a pubkey in hex form even if they display npub by default. Add one at a time; press enter after each."
         type = "tags"
+        default = ""
 
         [main.auth.mirror_require_auth]
         ask.en = "Require Nostr auth for mirror requests"
