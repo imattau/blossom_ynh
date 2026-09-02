@@ -9,6 +9,47 @@ ynh_app_setting_get_or_default() {
 	printf '%s' "${value:-$default}"
 }
 
+# Reads a scalar key out of the app's live config.yml, scoped strictly to
+# the block between the $2 and $3 line patterns (both matched with
+# extended regex; $3 empty means "to end of file"), falling back to $4 if
+# the file doesn't exist yet (fresh install), the block doesn't exist yet
+# (an upgrade from a package version older than the one that introduced
+# it - the start pattern just never matches, so the block is empty), or
+# the key isn't present within that block.
+#
+# Deliberately does NOT use ynh_read_var_in_file's own --after, which only
+# bounds the start of its search and not the end: for a key genuinely
+# absent from a section (e.g. old config.yml's "list:" had no
+# requireAuth), it happily keeps scanning into later sections and returns
+# an unrelated key's value instead of "not found" - which silently
+# resurrects the wrong value instead of falling back to the default.
+#
+# Config-panel-bound fields are only ever persisted to config.yml, never
+# to app settings, so this is the only way to read back an admin's
+# existing customization before re-rendering the template - skipping this
+# on upgrade would silently reset such fields to defaults every time a
+# new field is added to the template.
+blossom_config_get_or_default() {
+	local key="$1" start="$2" end="$3" default="$4" val="" block
+	if [ -f "$install_dir/config.yml" ]; then
+		if [ -n "$start" ] && [ -n "$end" ]; then
+			block="$(sed -n "/$start/,/$end/p" "$install_dir/config.yml")"
+		elif [ -n "$start" ]; then
+			block="$(sed -n "/$start/,\$p" "$install_dir/config.yml")"
+		else
+			block="$(cat "$install_dir/config.yml")"
+		fi
+		val="$(printf '%s\n' "$block" | grep -m1 -oP "^\s*${key}:\s*\K.*" || true)"
+		val="${val%\"}"
+		val="${val#\"}"
+	fi
+	if [ -z "$val" ]; then
+		printf '%s' "$default"
+	else
+		printf '%s' "$val"
+	fi
+}
+
 ynh_upload_size_to_bytes() {
 	case "$1" in
 		"100 MiB") printf '104857600' ;;

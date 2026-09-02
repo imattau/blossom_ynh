@@ -9,10 +9,6 @@ ynh_systemctl --service="$app" --action=stop || true
 ynh_script_progression "Updating Blossom Server"
 ynh_setup_source --source_id=main --dest_dir="$install_dir" --keep="config.yml,.deno-cache,data"
 ynh_setup_source --source_id=deno --dest_dir="$install_dir/.deno"
-max_upload_size="${max_upload_size:-2147483648}"
-max_upload_size="$(ynh_upload_size_to_bytes "$max_upload_size")"
-max_upload_size_mb=$(( (max_upload_size + 1048575) / 1048576 ))
-MAX_UPLOAD_SIZE_MB="$max_upload_size_mb"
 source_root="$(find "$install_dir" -mindepth 1 -maxdepth 1 -type d -name 'blossom-server-*' -print -quit)"
 if [ -n "$source_root" ]; then
 	shopt -s dotglob
@@ -27,6 +23,60 @@ pushd "$install_dir" >/dev/null
 ynh_exec_and_print_stderr_only_if_error "$install_dir/.deno/deno" task build
 ynh_exec_and_print_stderr_only_if_error "$install_dir/.deno/deno" cache main.ts
 popd >/dev/null
+
+# config.yml is kept as-is across upgrades (it's the config panel's source
+# of truth), but is re-rendered here so any field the package has added
+# since this app was installed gets a value. Every value below prefers
+# whatever is already in the existing config.yml - i.e. any admin
+# customization made via the config panel - and only falls back to the
+# persisted install setting or an upstream default for a field that
+# doesn't exist in the file yet.
+ynh_script_progression "Updating Blossom configuration"
+public_domain="$(blossom_config_get_or_default publicDomain "" "" "$domain")"
+storage_backend="$(blossom_config_get_or_default backend '^storage:' '^upload:' "${storage_backend:-local}")"
+s3_endpoint="$(blossom_config_get_or_default endpoint '^storage:' '^upload:' "${s3_endpoint:-https://s3.invalid}")"
+s3_bucket="$(blossom_config_get_or_default bucket '^storage:' '^upload:' "${s3_bucket:-not-configured}")"
+s3_access_key="$(blossom_config_get_or_default accessKey '^storage:' '^upload:' "${s3_access_key:-not-configured}")"
+s3_secret_key="$(blossom_config_get_or_default secretKey '^storage:' '^upload:' "${s3_secret_key:-not-configured-secret}")"
+s3_region="$(blossom_config_get_or_default region '^storage:' '^upload:' "${s3_region:-us-east-1}")"
+
+default_max_upload_size="$(ynh_upload_size_to_bytes "${max_upload_size:-2147483648}")"
+max_upload_size="$(blossom_config_get_or_default maxSize '^upload:' '^mirror:' "$default_max_upload_size")"
+max_upload_size_mb=$(( (max_upload_size + 1048575) / 1048576 ))
+MAX_UPLOAD_SIZE_MB="$max_upload_size_mb"
+
+default_dashboard_enabled=false
+if [ "${enable_dashboard:-0}" -eq 1 ]; then default_dashboard_enabled=true; fi
+dashboard_enabled="$(blossom_config_get_or_default enabled '^dashboard:' "" "$default_dashboard_enabled")"
+
+upload_require_auth="$(blossom_config_get_or_default requireAuth '^upload:' '^mirror:' true)"
+mirror_require_auth="$(blossom_config_get_or_default requireAuth '^mirror:' '^delete:' true)"
+delete_require_auth="$(blossom_config_get_or_default requireAuth '^delete:' '^list:' true)"
+media_require_auth="$(blossom_config_get_or_default requireAuth '^media:' '^report:' true)"
+list_require_auth="$(blossom_config_get_or_default requireAuth '^list:' '^media:' false)"
+
+media_max_upload_size="$(blossom_config_get_or_default maxSize '^media:' '^report:' "$(ynh_upload_size_to_bytes "1 GiB")")"
+
+media_image_quality="$(blossom_config_get_or_default quality '^  image:' '^  video:' 90)"
+media_image_progressive="$(blossom_config_get_or_default progressive '^  image:' '^  video:' true)"
+media_image_max_width="$(blossom_config_get_or_default maxWidth '^  image:' '^  video:' 1920)"
+media_image_max_height="$(blossom_config_get_or_default maxHeight '^  image:' '^  video:' 1080)"
+media_image_output_format="$(blossom_config_get_or_default outputFormat '^  image:' '^  video:' webp)"
+media_image_maintain_aspect_ratio="$(blossom_config_get_or_default maintainAspectRatio '^  image:' '^  video:' true)"
+media_image_keep_exif="$(blossom_config_get_or_default keepExif '^  image:' '^  video:' false)"
+media_image_fps="$(blossom_config_get_or_default fps '^  image:' '^  video:' 30)"
+
+media_video_quality="$(blossom_config_get_or_default quality '^  video:' '^report:' 90)"
+media_video_max_height="$(blossom_config_get_or_default maxHeight '^  video:' '^report:' 1080)"
+media_video_max_fps="$(blossom_config_get_or_default maxFps '^  video:' '^report:' 30)"
+
+video_profile="$(ynh_app_setting_get_or_default video_profile mp4_h264_aac)"
+media_video_format="$(ynh_video_profile_to_format "$video_profile")"
+media_video_codec="$(ynh_video_profile_to_video_codec "$video_profile")"
+media_audio_codec="$(ynh_video_profile_to_audio_codec "$video_profile")"
+
+ynh_config_add --jinja --template="config.yml.j2" --destination="$install_dir/config.yml"
+chmod 0640 "$install_dir/config.yml"
 
 chown -R "$app:$app" "$install_dir" "$data_dir"
 yunohost service add "$app" --description="Blossom blob storage server" --log="/var/log/$app/$app.log"
