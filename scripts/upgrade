@@ -39,11 +39,13 @@ s3_bucket="$(blossom_config_get_or_default bucket '^storage:' '^upload:' "${s3_b
 s3_access_key="$(blossom_config_get_or_default accessKey '^storage:' '^upload:' "${s3_access_key:-not-configured}")"
 s3_secret_key="$(blossom_config_get_or_default secretKey '^storage:' '^upload:' "${s3_secret_key:-not-configured-secret}")"
 s3_region="$(blossom_config_get_or_default region '^storage:' '^upload:' "${s3_region:-us-east-1}")"
+storage_remove_when_no_owners="$(blossom_config_get_or_default removeWhenNoOwners '^storage:' '^upload:' false)"
 
 default_max_upload_size="$(ynh_upload_size_to_bytes "${max_upload_size:-2147483648}")"
 max_upload_size="$(blossom_config_get_or_default maxSize '^upload:' '^mirror:' "$default_max_upload_size")"
 max_upload_size_mb=$(( (max_upload_size + 1048575) / 1048576 ))
 MAX_UPLOAD_SIZE_MB="$max_upload_size_mb"
+upload_require_pubkey_in_rule="$(blossom_config_get_or_default requirePubkeyInRule '^upload:' '^mirror:' false)"
 
 default_dashboard_enabled=false
 if [ "${enable_dashboard:-0}" -eq 1 ]; then default_dashboard_enabled=true; fi
@@ -62,6 +64,10 @@ mirror_require_auth="$(blossom_config_get_or_default requireAuth '^mirror:' '^de
 delete_require_auth="$(blossom_config_get_or_default requireAuth '^delete:' '^list:' true)"
 media_require_auth="$(blossom_config_get_or_default requireAuth '^media:' '^report:' true)"
 list_require_auth="$(blossom_config_get_or_default requireAuth '^list:' '^media:' false)"
+list_allow_list_others="$(blossom_config_get_or_default allowListOthers '^list:' '^media:' true)"
+
+default_landing_title="$app"
+landing_title="$(blossom_config_get_or_default title '^landing:' '^dashboard:' "$default_landing_title")"
 
 media_max_upload_size="$(blossom_config_get_or_default maxSize '^media:' '^report:' "$(ynh_upload_size_to_bytes "1 GiB")")"
 

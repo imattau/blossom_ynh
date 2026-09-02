@@ -32,6 +32,11 @@ delete_require_auth=true
 media_require_auth=true
 list_require_auth=false
 
+storage_remove_when_no_owners=false
+upload_require_pubkey_in_rule=false
+list_allow_list_others=true
+landing_title="$app"
+
 media_image_quality=90
 media_image_progressive=true
 media_image_max_width=1920

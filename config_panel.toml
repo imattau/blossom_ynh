@@ -7,11 +7,23 @@ version = "1.0"
         type = "string"
         bind = "publicDomain:__INSTALL_DIR__/config.yml"
 
+        [main.server.landing_title]
+        ask.en = "Landing page title"
+        help.en = "Shown in the <title> and <h1> of the server's landing page at /."
+        type = "string"
+        bind = "landing>title:__INSTALL_DIR__/config.yml"
+
         [main.server.storage_backend]
         ask.en = "Storage backend"
         type = "select"
         choices = ["local", "s3"]
         bind = "storage>backend:__INSTALL_DIR__/config.yml"
+
+        [main.server.storage_remove_when_no_owners]
+        ask.en = "Remove orphaned blobs"
+        help.en = "When on, blobs with no owners left are removed on the next prune cycle regardless of expiry rules."
+        type = "boolean"
+        bind = "storage>removeWhenNoOwners:__INSTALL_DIR__/config.yml"
 
         [main.server.max_upload_size]
         ask.en = "Maximum upload size"
@@ -87,6 +99,12 @@ version = "1.0"
         type = "boolean"
         bind = "upload>requireAuth:__INSTALL_DIR__/config.yml"
 
+        [main.auth.upload_require_pubkey_in_rule]
+        ask.en = "Invite-only uploads"
+        help.en = "When on, uploads are rejected unless the uploader's pubkey is explicitly listed in a storage rule. Only meaningful if you've configured pubkey-scoped storage rules; leave off for an open server."
+        type = "boolean"
+        bind = "upload>requirePubkeyInRule:__INSTALL_DIR__/config.yml"
+
         [main.auth.mirror_require_auth]
         ask.en = "Require Nostr auth for mirror requests"
         help.en = "BUD-04: require a valid signed Nostr event to mirror a remote blob onto this server."
@@ -110,6 +128,12 @@ version = "1.0"
         help.en = "BUD-02: require a valid signed Nostr event to list a pubkey's blobs. Only relevant when blob listing is enabled above."
         type = "boolean"
         bind = "list>requireAuth:__INSTALL_DIR__/config.yml"
+
+        [main.auth.list_allow_list_others]
+        ask.en = "Allow listing other pubkeys' blobs"
+        help.en = "When off, an authenticated user may only list their own blobs. Only relevant when blob listing is enabled above."
+        type = "boolean"
+        bind = "list>allowListOthers:__INSTALL_DIR__/config.yml"
 
 [media]
     name.en = "Media transcoding"
