@@ -52,6 +52,12 @@ version = "1.0"
         type = "boolean"
         bind = "dashboard>enabled:__INSTALL_DIR__/config.yml"
 
+        [main.features.dashboard_password]
+        ask.en = "Dashboard password"
+        help.en = "HTTP Basic Auth password for the /admin dashboard, used with your YunoHost admin username. This is Blossom's own credential, unrelated to your YunoHost account password - changing it here is the only way to change it. A random one is generated on install."
+        type = "password"
+        bind = "dashboard>password:__INSTALL_DIR__/config.yml"
+
         [main.features.enable_listing]
         ask.en = "Enable blob listing"
         type = "boolean"

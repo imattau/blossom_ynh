@@ -16,6 +16,15 @@ MAX_UPLOAD_SIZE_MB="$max_upload_size_mb"
 dashboard_enabled=false
 if [ "${enable_dashboard:-0}" -eq 1 ]; then dashboard_enabled=true; fi
 
+# The dashboard has no relation to YunoHost users/SSO - it's Blossom's own
+# HTTP Basic Auth, entirely separate. Leaving password blank makes Blossom
+# generate a new random one on every restart (only visible in the
+# service's own logs), so generate a stable one instead and persist it as
+# a setting - both so it survives across restarts and so it can be shown
+# to the admin once, in the POST_INSTALL notification.
+dashboard_password="$(ynh_string_random --length=24)"
+ynh_app_setting_set --app="$app" --key=dashboard_password --value="$dashboard_password"
+
 media_max_upload_size="$(ynh_upload_size_to_bytes "1 GiB")"
 upload_require_auth=true
 mirror_require_auth=true

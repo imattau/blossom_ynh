@@ -68,7 +68,7 @@ landing:
 dashboard:
   enabled: {{ dashboard_enabled }}
   username: "{{ admin }}"
-  password: ""
+  password: "{{ dashboard_password }}"
   lookupRelays:
     - wss://purplepag.es
     - wss://relay.nostr.band
