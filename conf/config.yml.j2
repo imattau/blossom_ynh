@@ -1,14 +1,14 @@
-port: __PORT__
+port: {{ port }}
 host: 127.0.0.1
-publicDomain: "__PUBLIC_DOMAIN__"
+publicDomain: "{{ public_domain }}"
 
 database:
-  path: "__DATA_DIR__/sqlite.db"
+  path: "{{ data_dir }}/sqlite.db"
 
 storage:
   backend: {{ storage_backend }}
   local:
-    dir: "__DATA_DIR__/blobs"
+    dir: "{{ data_dir }}/blobs"
 {% if storage_backend == 's3' %}
   s3:
     endpoint: "{{ s3_endpoint }}"
@@ -16,13 +16,13 @@ storage:
     accessKey: "{{ s3_access_key }}"
     secretKey: "{{ s3_secret_key }}"
     region: "{{ s3_region }}"
-    tmpDir: "__DATA_DIR__/s3-tmp"
+    tmpDir: "{{ data_dir }}/s3-tmp"
 {% endif %}
 
 upload:
   enabled: true
   requireAuth: true
-  maxSize: __MAX_UPLOAD_SIZE__
+  maxSize: {{ max_upload_size }}
   workers: 0
 
 mirror:
@@ -38,18 +38,18 @@ list:
 media:
   enabled: false
   requireAuth: true
-  tmpDir: "__DATA_DIR__/media-tmp"
+  tmpDir: "{{ data_dir }}/media-tmp"
 
 report:
   enabled: true
 
 landing:
   enabled: true
-  title: "__APP__"
+  title: "{{ app }}"
 
 dashboard:
   enabled: {{ dashboard_enabled }}
-  username: "__ADMIN__"
+  username: "{{ admin }}"
   password: ""
   lookupRelays:
     - wss://purplepag.es
