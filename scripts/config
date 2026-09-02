@@ -15,6 +15,40 @@ get__media_max_upload_size() {
 	ynh_bytes_to_upload_size_choice "$(ynh_read_var_in_file --file="$install_dir/config.yml" --key=maxSize --after='^media:')"
 }
 
+# ynh_write_var_in_file (used by the generic bind-based apply for every
+# other field) does its replacement with sed, and sed treats an unescaped
+# '&' in a replacement string as "insert the whole match" - any password
+# containing '&' gets silently corrupted on write instead of stored as
+# typed. Bypass that entirely for this one field: Python's re.sub with a
+# function (not a string) as the replacement never interprets backslashes
+# or '&' specially, so the password is written back byte-for-byte,
+# properly escaped for a YAML double-quoted string.
+set__dashboard_password() {
+	python3 - "$install_dir/config.yml" "$dashboard_password" << 'PYEOF'
+import re
+import sys
+
+path, password = sys.argv[1], sys.argv[2]
+escaped = password.replace("\\", "\\\\").replace('"', '\\"')
+
+with open(path) as f:
+    content = f.read()
+
+content, n = re.subn(
+    r'(?m)^(  password: ").*(")$',
+    lambda m: m.group(1) + escaped + m.group(2),
+    content,
+    count=1,
+)
+if n != 1:
+    sys.exit("dashboard password line not found in config.yml")
+
+with open(path, "w") as f:
+    f.write(content)
+PYEOF
+	ynh_app_setting_set --app="$app" --key=dashboard_password --value="$dashboard_password"
+}
+
 ynh_app_config_apply() {
 	ynh_systemctl --service="$app" --action=stop || true
 	_ynh_app_config_apply
