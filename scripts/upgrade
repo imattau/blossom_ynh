@@ -47,6 +47,14 @@ max_upload_size_mb=$(( (max_upload_size + 1048575) / 1048576 ))
 MAX_UPLOAD_SIZE_MB="$max_upload_size_mb"
 upload_require_pubkey_in_rule="$(blossom_config_get_or_default requirePubkeyInRule '^upload:' '^mirror:' false)"
 invite_pubkeys="$(ynh_app_setting_get_or_default invite_pubkeys "")"
+# Unlike dashboard_password/video_profile below, this had no install-time
+# ynh_app_setting_set call until an app already installed before this
+# setting existed - for those, the read above is only ever a per-run
+# fallback and never actually lands in settings.yml, so the config panel
+# keeps seeing the key as never-initialized no matter what its TOML
+# default says (an empty-string TOML default doesn't help either - every
+# option's own validator silently coerces "" back to None).
+ynh_app_setting_set --app="$app" --key=invite_pubkeys --value="$invite_pubkeys"
 
 default_dashboard_enabled=false
 if [ "${enable_dashboard:-0}" -eq 1 ]; then default_dashboard_enabled=true; fi
