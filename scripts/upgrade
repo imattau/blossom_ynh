@@ -59,6 +59,15 @@ dashboard_enabled="$(blossom_config_get_or_default enabled '^dashboard:' "" "$de
 dashboard_password="$(blossom_config_get_or_default password '^dashboard:' "" "$(ynh_string_random --length=24)")"
 ynh_app_setting_set --app="$app" --key=dashboard_password --value="$dashboard_password"
 
+# See scripts/install for why: without this, SSOwat strips the dashboard's
+# Basic Auth header before it ever reaches Blossom, so the password can
+# never actually work no matter how correct it is.
+ynh_app_setting_set --app="$app" --key=protect_against_basic_auth_spoofing --value=false
+# This setting isn't a resource-diffed property, so force SSOwat to
+# actually pick it up now rather than relying on some other permission
+# change happening to trigger a conf regen later.
+ynh_permission_update --permission=main
+
 upload_require_auth="$(blossom_config_get_or_default requireAuth '^upload:' '^mirror:' true)"
 mirror_require_auth="$(blossom_config_get_or_default requireAuth '^mirror:' '^delete:' true)"
 delete_require_auth="$(blossom_config_get_or_default requireAuth '^delete:' '^list:' true)"

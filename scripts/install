@@ -25,6 +25,22 @@ if [ "${enable_dashboard:-0}" -eq 1 ]; then dashboard_enabled=true; fi
 dashboard_password="$(ynh_string_random --length=24)"
 ynh_app_setting_set --app="$app" --key=dashboard_password --value="$dashboard_password"
 
+# SSOwat's anti-spoofing protection unconditionally strips any
+# client-supplied "Authorization: Basic ..." header before proxying to
+# the app (it assumes only SSOwat itself should ever set that header, to
+# represent a logged-in portal user) - regardless of the main permission's
+# auth_header setting. The dashboard's HTTP Basic Auth is Blossom's own,
+# entirely unrelated to YunoHost accounts, so without this the dashboard
+# password can never actually reach the app: every login attempt gets a
+# generic 401 no matter how correct the credentials are. YunoHost's own
+# core carries this same exception for other apps with their own
+# independent HTTP auth (nextcloud, radicale, baikal, ...).
+ynh_app_setting_set --app="$app" --key=protect_against_basic_auth_spoofing --value=false
+# This setting isn't a resource-diffed property, so force SSOwat to
+# actually pick it up now rather than relying on some other permission
+# change happening to trigger a conf regen later.
+ynh_permission_update --permission=main
+
 media_max_upload_size="$(ynh_upload_size_to_bytes "1 GiB")"
 upload_require_auth=true
 mirror_require_auth=true
