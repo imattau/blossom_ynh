@@ -3,6 +3,18 @@
 source "$(dirname "$0")/_common.sh"
 source /usr/share/yunohost/helpers
 
+# Custom getters so the config panel shows the current preset for these
+# two select fields, instead of the raw byte count stored in config.yml
+# matching none of the select's choices and rendering blank. Detected by
+# name (get__<short_setting>) - no bind wiring needed for these two.
+get__max_upload_size() {
+	ynh_bytes_to_upload_size_choice "$(ynh_read_var_in_file --file="$install_dir/config.yml" --key=maxSize --after='^upload:')"
+}
+
+get__media_max_upload_size() {
+	ynh_bytes_to_upload_size_choice "$(ynh_read_var_in_file --file="$install_dir/config.yml" --key=maxSize --after='^media:')"
+}
+
 ynh_app_config_apply() {
 	ynh_systemctl --service="$app" --action=stop || true
 	_ynh_app_config_apply

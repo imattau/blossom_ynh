@@ -62,6 +62,26 @@ ynh_upload_size_to_bytes() {
 	esac
 }
 
+# Reverse of ynh_upload_size_to_bytes. config.yml stores maxSize as a raw
+# byte count, but the config panel's max_upload_size/media_max_upload_size
+# fields are "select" questions whose choices are the human-readable
+# presets ("2 GiB", ...) - the generic bind reader returns the byte count
+# as-is, which matches none of those choices, so the dropdown shows
+# nothing selected. Custom get__<setting> functions (see scripts/config)
+# use this to show the matching preset instead. Falls back to the closest
+# fixed preset for a value that was hand-edited outside the panel and
+# doesn't exactly match one.
+ynh_bytes_to_upload_size_choice() {
+	case "$1" in
+		104857600) printf '100 MiB' ;;
+		524288000) printf '500 MiB' ;;
+		1073741824) printf '1 GiB' ;;
+		2147483648) printf '2 GiB' ;;
+		5368709120) printf '5 GiB' ;;
+		*) printf '2 GiB' ;;
+	esac
+}
+
 # Maps a single video_profile setting to Blossom's three coupled
 # media.video fields (format/videoCodec/audioCodec must be a valid
 # combination or Blossom refuses to start).

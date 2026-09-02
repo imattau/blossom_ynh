@@ -3,7 +3,7 @@ packaging_format = 2
 id = "blossom"
 name = "Blossom Server"
 description.en = "Self-hosted content-addressed blob storage server implementing the Blossom protocol for Nostr"
-version = "0.1.20~ynh1"
+version = "0.1.21~ynh1"
 maintainers = ["imattau"]
 
 [upstream]
